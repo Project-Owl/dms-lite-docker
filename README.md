@@ -1,5 +1,22 @@
 ![Imgur](https://i.imgur.com/xIHNbkz.png)
  [![Slack](https://img.shields.io/badge/Join-Slack-blue)](https://www.project-owl.com/slack)
+ The DMS LITE is the open source version of the cloud DMS. DMS LITE gives you simple network activity and data visuals.
+
+## About
+The DMS LITE is a light weight version of the OWL **DMS** that runs in the cloud. The DMS Lite is built to run on a local device if internet connectivity is not available. The DMS (Data Managment System) is build to collect data from the [ClusterDuck Protocol](https://github.com/Call-for-Code/ClusterDuck-Protocol) and provide simple data managment, analytics and network activity. 
+
+## How it Works
+There are two different ways to get the data from your ClusterDuck network into the DMS locally: using a USB Serial connection or WiFi. Using the serial connection, the Raspberry Pi or other device reads the incoming messages from the serial monitor by a wired connection from the papaduck and writes the data into the database. Using the Wifi connection the Raspberry pi turns into an acces point. This allows the Papa Ducks to send data over WiFi to a MQTT broker that writes the data into the database.
+
+The PaPa Duck is running a different Firmware than the regular ClusterDuck Protocol PaPa example.
+
+### Example of ClusterDuck Protocol Network
+
+![Imgur](https://i.imgur.com/SMRbAKk.jpg)
+
+### Local ClusterDuck Protocol Network
+
+![Imgur](https://i.imgur.com/B5NbR0k.jpg)
 
 ## Pre-requirements:
 
