@@ -10,22 +10,13 @@ services:
       - "3000:3000"
     volumes:
       - "${DATABASE_FILE}:/db"
-
-  MQTT-Server:
-      container_name: mqtt_broker
-      hostname: mosquitto
-      image: eclipse-mosquitto:2.0.10
-      ports: 
-        - "1883:1883"
-      volumes:
-          - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-
   serialwriter:
       depends_on:
-        - "MQTT-Server"
+        - "web"
       build:
         dockerfile: Dockerfile
-        context: ./DMSPY
+        context: ./serial-sql-writer
       volumes:
         - "${DATABASE_FILE}:/db"
-          
+        - "/dev/ttyUSB0:/dev/ttyUSB0"
+      privileged: true 
