@@ -71,7 +71,9 @@ The Docker Image consists of one root folder and three sub folders;
 If you are using the WiFi-PapaDuck to connect to your local network you need to enter the IP adres of your local MQTT network to the Papa's .Ino file. If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
 
 `const char* user = "raspi-webgui"; // change to your home WiFi SSID if not using RaspAp`
+
 `const char* pass = "ChangeMe";// change to your home WiFi password if not using RaspAp`
+
 `const char* mqtt_server = "10.3.141.1";// change to local Ip if not using RaspAp`
 
 If you need to know how to find your Local IP adres your MQTT broker inside your Docker container is operating follow these instructions.
