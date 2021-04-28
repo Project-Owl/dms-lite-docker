@@ -30,13 +30,24 @@ The PaPa Duck is running a different Firmware than the regular ClusterDuck Proto
 
 **Run DMS Lite Docker Version:**
 
-1.  Download the code to your machine using githubs git commands  `git clone <repo link>`
-2.  Navigate to the folder where you stored this code. make sure you are on the root folder you should see the three sub-folders. From the root folder you will see .env.example
-3.  We will need to edit the .env.example - In the .env file just tell it where your db (database) file is stored. Once you do that save the file as .env so docker knows to check it.
+1.  Download the code to your machine using githubs git commands `git clone https://github.com/Project-Owl/dms-lite-docker.git`
+
+2.  Navigate to the folder where you stored this code. make sure you are on the root folder you should see the three sub-folders. We need to create the database file for the DMS system.
+    - Open your terminal and type `sqlite3` this should should drop you into a sqlite session
+    - Next create the data.db file by running `sqlite3 data.db`
+    - Last you need to tell it the schema `CREATE TABLE IF NOT EXISTS clusterData (timestamp datetime, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT);`
+    - Once you follow those commands you will now have a data.db file there. *Make note of the file path*
+
+3.  We will need to edit the .env.example - In the .env file just tell it where your db (database) file is stored *Note only copy the path do not include data.db name* for example: home/dev/dmslite/. Once you do that save the file as .env so docker knows to check it.
+
 4.  Now you edited those files it is time to build your docker image. you can do this by running the following command  `docker-compose -f docker-compose-serial.yml or docker-compose-wifi-serial.yml build` this will take a few mins. Once that is done you can go ahead and run dms-lite  _make sure your duck is plugged in via usb if using serialUSB version_. Run it via this command  `docker-compose -f docker-compose-serial.yml or docker-compose-wifi-serial.yml up -d`. This will start DMS-Lite on localhost:3000
+
 5.  Open up your favorite web browser and go to that link and you should see DMS-Lite
+
 6.  If you would like to stop it running at anytime go back to your terminal and run  `docker-compose down`
 
 Trouble Shooting:
 
 -   If you would like to see the logging output of all the containers running then run  `docker-compose -f docker-compose-serial.yml or docker-compose-wifi-serial.yml up`. This will show a bunch of output of the running containers. If you would like to close out the service hit ctrl+c on your machines keyboard.
+
+- If no db is detected make sure your .env is corect and that there is no space after the equals sign. 
