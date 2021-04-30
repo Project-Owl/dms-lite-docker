@@ -80,7 +80,7 @@ If you need to know how to find your Local IP adres your MQTT broker inside your
 
 
 
-## Trouble Shooting:
+## Troubleshooting:
 
 -   If you would like to see the logging output of all the containers running then run  `docker-compose -f docker-compose-serial.yml or docker-compose-wifi-serial.yml up`. This will show a bunch of output of the running containers. If you would like to close out the service hit ctrl+c on your machines keyboard.
 
