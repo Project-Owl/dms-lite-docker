@@ -1,6 +1,7 @@
 ![Imgur](https://i.imgur.com/XLb61lc.png)
 
-[![Slack](https://img.shields.io/badge/Join-Slack-blue)](https://www.project-owl.com/slack)
+[![Slack](https://img.shields.io/badge/Join-Slack-blue?logo=slack&style=flat-square)](https://www.project-owl.com/slack)  ![GitHub](https://img.shields.io/github/license/project-owl/dms-lite-docker?style=flat-square) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/project-owl/dms-lite-docker?logo=github&style=flat-square)
+
 
 The DMS LITE is the open source version of the cloud DMS. DMS LITE gives you simple network activity and data visuals.
 
@@ -99,4 +100,3 @@ This project is licensed under the Apache 2 License - see the [LICENSE](LICENSE)
 ## Version
 v 1.0.0
 
-[Slack Workspace]: <https://www.project-owl.com/slack>
