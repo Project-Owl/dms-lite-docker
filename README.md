@@ -11,7 +11,7 @@ The DMS LITE is a light weight version of the OWL **DMS** that runs in the cloud
 ## How it Works
 There are two different ways to get the data from your ClusterDuck network into the DMS locally: using a USB Serial connection or WiFi. 
 
-- **Serial Connection:** Using the serial connection, the Raspberry Pi or other device reads the incoming messages from the serial monitor by a wired connection from the [modifed PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample) and writes the data into the database. 
+- **Serial Connection (Currenlty only for Raspberry Pi):** Using the serial connection, the Raspberry Pi or other device reads the incoming messages from the serial monitor by a wired connection from the [modifed PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample) and writes the data into the database. 
 - **WiFi Connection** If you use the WiFi option your [modified Papaduck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi) will publish all its data to a MQTT broker that runs on your local device. 
 
 The PaPaDucks are running [a different Firmware](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples) than the regular ClusterDuck Protocol PaPa example.
