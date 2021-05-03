@@ -41,8 +41,7 @@ In the root folder, there are three subfolders that each contain code to build a
 2.  Navigate to the `dms-lite-docker` folder you just copied, you should see the three sub-folders. 
 
 3. Initalize the database
-    - Open a terminal and type `sqlite3` this should start a sqlite session.
-    - Next create the data.db file by running `sqlite3 data.db`
+    - Open a terminal and type `sqlite3 data.db` to create a database
     - Next creata a table by running 
     `CREATE TABLE IF NOT EXISTS clusterData (timestamp datetime, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT);`
     - Copy the file path of your data.db file 
