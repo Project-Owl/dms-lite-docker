@@ -88,6 +88,8 @@ If you need to know how to find your Local IP adres your MQTT broker inside your
 
 - If you get this error `ERROR: Named volume "<PATH_TO_DB>:/db:rw" is used in service "web" but no declaration was found in the volumes section.` make sure your file path is correct in the .env file and mkae sure data.db is not at the end of your path.
 
+- If you get this error ` Failed to execute script docker-compose` make sure your docker Desktop is open.
+
 
 ## Contributing
 
