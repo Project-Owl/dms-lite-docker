@@ -68,13 +68,14 @@ In the root folder, there are three subfolders that each contain code to build a
 
 ## Setup your network
 
-If you are using the WiFi-PapaDuck to connect to your local network you need to enter the IP adres of your local MQTT network to the Papa's .Ino file. If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
+### Setup Serial PapaDuck
 
-`const char* user = "raspi-webgui"; // change to your home WiFi SSID if not using RaspAp`
+### Setup WiFi PapaDuck
+If you are using the WiFi-PapaDuck to connect to your local network you need to enter the IP adres of your local MQTT network to the [Papa's .Ino file](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi/PapiDuckExample-wifi.ino). If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
 
-`const char* pass = "ChangeMe";// change to your home WiFi password if not using RaspAp`
-
-`const char* mqtt_server = "10.3.141.1";// change to local Ip if not using RaspAp`
+    const char* user = "raspi-webgui"; // change to your home WiFi SSID if not using RaspAp
+    const char* pass = "ChangeMe";// change to your home WiFi password if not using RaspAp
+    const char* mqtt_server = "10.3.141.1";// change to local Ip if not using RaspAp
 
 If you need to know how to find your Local IP adres your MQTT broker inside your Docker container is operating follow these instructions.
 
@@ -85,3 +86,17 @@ If you need to know how to find your Local IP adres your MQTT broker inside your
 -   If you would like to see the logging output of all the containers running then run  `docker-compose -f docker-compose-serial.yml or docker-compose-wifi-serial.yml up`. This will show a bunch of output of the running containers. If you would like to close out the service hit ctrl+c on your machines keyboard.
 
 - If no db is detected make sure your .env is corect and that there is no space after the equals sign. 
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our Code of Conduct, and the process for submitting DMS-Lite improvements. You can reach out directly on our [Slack Workspace] for any questions and work with the community. 
+
+
+## License
+
+This project is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details.
+
+## Version
+v 1.0.0
+
+[Slack Workspace]: <https://www.project-owl.com/slack>
