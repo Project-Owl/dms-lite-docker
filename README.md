@@ -70,6 +70,7 @@ In the root folder, there are three subfolders that each contain code to build a
 ## Setup your network
 
 ### Setup Serial PapaDuck
+Setup you [Serial PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample/Serial-PaPiDuckExample.ino) by downloading the source code and flashing your development board. After you have succesfully setup your Duck, connect it to your Local machine by USB cable. 
 
 ### Setup WiFi PapaDuck
 If you are using the WiFi-PapaDuck to connect to your local network you need to enter the IP adres of your local MQTT network to the [Papa's .Ino file](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi/PapiDuckExample-wifi.ino). If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
