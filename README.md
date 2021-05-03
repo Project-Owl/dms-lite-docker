@@ -86,7 +86,8 @@ If you need to know how to find your Local IP adres your MQTT broker inside your
 
 -   If you would like to see the logging output of all the containers running then run  `docker-compose -f docker-compose-serial.yml or docker-compose-wifi-serial.yml up`. This will show a bunch of output of the running containers. If you would like to close out the service hit ctrl+c on your machines keyboard.
 
-- If no db is detected make sure your .env is corect and that there is no space after the equals sign. 
+- If you get this error `ERROR: Named volume "<PATH_TO_DB>:/db:rw" is used in service "web" but no declaration was found in the volumes section.` make sure your file path is correct in the .env file and mkae sure data.db is not at the end of your path.
+
 
 ## Contributing
 
