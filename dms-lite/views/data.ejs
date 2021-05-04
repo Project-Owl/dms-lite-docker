@@ -1,28 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="UTF8">
   <head>
     <%- include partials/head.ejs %>
     <%- include partials/nav.ejs %>
+    	<script src="/stylesheets/tablefilter/tablefilter.js"></script>
+
+	  <title>DMS LITE</title>
+
   </head>
-  <body >
-	<script src="/stylesheets/tablefilter/tablefilter.js"></script>
-  	<div id="data">
-	  	<div class="container">
+  <body>
+
+  	<div id="data"> 	
+	  	<div class="container-xxl">
 		    <div class="row">
-		      <div class="col-sm-12">
+		      <div class="col-sm-12 main-section">
 				  <h4 id="main-text">Recent Data</h4>
-		      	<table class="table table-hover">
+
+		      	<table class="table main-table">
+
 		      		<thead>
-		      			<th>DuckID</th>
-		      			<th>Timestamp</th>
-						<th>Topic</th>
-		      			<th>Message ID</th>
-		      			<th>Path</th>
-		      			<th>Payload</th>
-		      			<th>Hops</th>
-		      			<th>Duck type</th>
+		      			<th>DUCKID</th>
+		      			<th>TIMESTAMP</th>
+						<th>TOPIC</th>
+		      			<th>MESSAGE ID</th>
+		      			<th>PATH</th>
+		      			<th>PAYLOAD</th>
+		      			<th>HOPS</th>
+		      			<th>TYPE</th>
 		      		</thead>
-		      		<tbody>
+		      		<tbody class="padding-table">
 					<% something.forEach(function(duck) { %>
 		      			<tr>
 		      				<td><%= duck.duck_id %></td>
@@ -45,12 +51,15 @@
     <%- include partials/footer.ejs %>
   </body>
   <script>
-	  function reloadThePage(){
-		  window.location.reload();
-	  }
-	  setInterval(reloadThePage,8000)
+	  // function reloadThePage(){
+		 //  window.location.reload();
+	  // }
+	  // setInterval(reloadThePage,8000)
 
-	var tf = new TableFilter(document.querySelector('.table'), {
+	var tf = new TableFilter(document.querySelector('.main-table'), {
+        
+            filters_row_index: 1,
+            enable_checklist_reset_filter: false, 
 		state: {
           types: ['hash'],
           filters: true
