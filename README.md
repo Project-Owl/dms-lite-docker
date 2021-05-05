@@ -12,7 +12,7 @@ The DMS LITE is a light weight version of the OWL **DMS** that runs in the cloud
 ## How it Works
 There are two different ways to get the data from your ClusterDuck network into the DMS locally: using a USB Serial connection or WiFi. 
 
-- **Serial Connection:** Using the serial connection, the Raspberry Pi or other device reads the incoming messages from the serial monitor by a wired connection from the [modifed PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample) and writes the data into the database. 
+- **Serial Connection (Currenlty only for Raspberry Pi):** Using the serial connection, the Raspberry Pi or other device reads the incoming messages from the serial monitor by a wired connection from the [modifed PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample) and writes the data into the database. 
 - **WiFi Connection** If you use the WiFi option your [modified Papaduck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi) will publish all its data to a MQTT broker that runs on your local device. 
 
 The PaPaDucks are running [a different Firmware](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples) than the regular ClusterDuck Protocol PaPa example.
@@ -42,8 +42,7 @@ In the root folder, there are three subfolders that each contain code to build a
 2.  Navigate to the `dms-lite-docker` folder you just copied, you should see the three sub-folders. 
 
 3. Initalize the database
-    - Open a terminal and type `sqlite3` this should start a sqlite session.
-    - Next create the data.db file by running `sqlite3 data.db`
+    - Open a terminal and type `sqlite3 data.db` to create a database
     - Next creata a table by running 
     `CREATE TABLE IF NOT EXISTS clusterData (timestamp datetime, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT);`
     - Copy the file path of your data.db file 
@@ -71,6 +70,7 @@ In the root folder, there are three subfolders that each contain code to build a
 ## Setup your network
 
 ### Setup Serial PapaDuck
+Setup you [Serial PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample/Serial-PaPiDuckExample.ino) by downloading the source code and flashing your development board. After you have succesfully setup your Duck, connect it to your Local machine by USB cable. 
 
 ### Setup WiFi PapaDuck
 If you are using the WiFi-PapaDuck to connect to your local network you need to enter the IP adres of your local MQTT network to the [Papa's .Ino file](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi/PapiDuckExample-wifi.ino). If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
@@ -87,7 +87,10 @@ If you need to know how to find your Local IP adres your MQTT broker inside your
 
 -   If you would like to see the logging output of all the containers running then run  `docker-compose -f docker-compose-serial.yml or docker-compose-wifi-serial.yml up`. This will show a bunch of output of the running containers. If you would like to close out the service hit ctrl+c on your machines keyboard.
 
-- If no db is detected make sure your .env is corect and that there is no space after the equals sign. 
+- If you get this error `ERROR: Named volume "<PATH_TO_DB>:/db:rw" is used in service "web" but no declaration was found in the volumes section.` make sure your file path is correct in the .env file and mkae sure data.db is not at the end of your path.
+
+- If you get this error ` Failed to execute script docker-compose` make sure your docker Desktop is open.
+
 
 ## Contributing
 
