@@ -3,7 +3,8 @@
 [![Slack](https://img.shields.io/badge/Join-Slack-blue?logo=slack&style=flat-square)](https://www.project-owl.com/slack)  ![GitHub](https://img.shields.io/github/license/project-owl/dms-lite-docker?style=flat-square) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/project-owl/dms-lite-docker?logo=github&style=flat-square)
 
 
-The DMS LITE is the open source version of the cloud DMS. DMS LITE gives you simple network activity and data visuals.
+![Imgur](https://i.imgur.com/3zInWHg.jpg)
+
 
 ## About
 The DMS LITE is a light weight version of the OWL **DMS** that runs in the cloud. The DMS Lite is built to run on a local device if internet connectivity is not available. The DMS (Data Managment System) is build to collect data from the [ClusterDuck Protocol](https://github.com/Call-for-Code/ClusterDuck-Protocol) and provide simple data managment, analytics and network activity. 
@@ -99,4 +100,5 @@ This project is licensed under the Apache 2 License - see the [LICENSE](LICENSE)
 
 ## Version
 v 1.0.0
+
 
