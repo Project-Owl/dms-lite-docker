@@ -7,7 +7,7 @@
 
 
 ## About
-The DMS LITE is a lightweight version of the OWL **DMS** that runs in the cloud. The DMS Lite is built to run on a local device if internet connectivity is not available. The DMS (Data Managment System) is build to collect data from the [ClusterDuck Protocol](https://github.com/Call-for-Code/ClusterDuck-Protocol) and provide simple data managment, analytics and network activity. 
+DMS LITE is a lightweight version of the OWL **DMS** that runs in the cloud. The DMS Lite is built to run on a local device if internet connectivity is not available. The DMS (Data Managment System) is built to collect data from the [ClusterDuck Protocol](https://github.com/Call-for-Code/ClusterDuck-Protocol) and provide simple data managment, analytics and network activity. 
 
 ## How it Works
 There are two different ways to get the data from your ClusterDuck network into the DMS locally: using a USB Serial connection or WiFi. 
