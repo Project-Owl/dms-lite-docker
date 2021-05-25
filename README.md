@@ -23,7 +23,7 @@ The PapaDucks are running [a different firmware](https://github.com/Call-for-Cod
 ## Prerequisites:
 
 -  **Docker** Download and install Docker for your operating system. To do this please go to the official installation page: [Install Docker](https://docs.docker.com/get-docker/)
--  **SQLite** You need to install SQLite on your machine to host the database. Follow the installation for your OS here [SQLite] ([https://www.sqlite.org/download.html](https://www.sqlite.org/download.html))
+-  **SQLite** You need to install SQLite on your machine to host the database. Follow the installation for your OS here [SQLite]([https://www.sqlite.org/download.html](https://www.sqlite.org/download.html))
 -  **ClusterDuck Protocol** Install the CDP Library onto your computer by following these instructions:  [CDP installation](https://github.com/Call-for-Code/ClusterDuck-Protocol/wiki/getting-started). _you will need a WiFi or Serial PapaDuck as well as a DuckLink device to test the DMS Lite._
 - **RaspAp - Only for Local Raspberry Pi Solution** If you don't have a local network to connect your WiFi PapaDuck to you can turn your Raspberry Pi into an access point by installing [RaspAp](https://raspap.com/#quick). *Note: Install RaspAp after successfully installing the Docker image if your Pi uses a WiFi connection*
 
