@@ -1,4 +1,4 @@
-FROM node:14.16-buster
+FROM node:14.17.6-buster
 
 #RUN apt update && apt install -y node-sqlite3
 COPY . .
