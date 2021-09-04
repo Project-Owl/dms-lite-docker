@@ -73,7 +73,7 @@ In the root folder, there are three subfolders that each contain code to build a
 Setup you [Serial PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample/Serial-PaPiDuckExample.ino) by downloading the source code and flashing your development board. After you have successfully setup your Duck, connect it to your Local machine by USB cable. 
 
 ### Setup WiFi PapaDuck
-If you are using the WiFi-PapaDuck to connect to your local network you need to enter the IP address of your local MQTT network to the [Papa's .ino file](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi/PapiDuckExample-wifi.ino). If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
+If you are using the WiFi-PapaDuck.ino to connect to your local network you need to enter the IP address of your local MQTT network **(the machine docker is running on not the IP of the container)** and your WiFi Network name and Password to the [Papa's .ino file](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi/PapiDuckExample-wifi.ino). If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
 
 ```c
 const char* user = "raspi-webgui"; // change to your home WiFi SSID if not using RaspAp
@@ -87,7 +87,7 @@ If you need to know how to find your Local IP address your MQTT broker inside yo
 
 ## Troubleshooting:
 
--   If you would like to see the logging output of all the containers running then run `docker-compose -f docker-compose-serial.yml or docker-compose-wifi-serial.yml up`. This will show a bunch of output of the running containers. If you would like to close out the service hit ctrl+c on your machine's keyboard.
+-   If you would like to see the logging output of all the containers running then run `docker-compose -f docker-compose-serial.yml or docker-compose-wifi.yml up`. This will show a bunch of output of the running containers. If you would like to close out the service hit ctrl+c on your machine's keyboard.
 
 - If you get this error `ERROR: Named volume "<PATH_TO_DB>:/db:rw" is used in service "web" but no declaration was found in the volumes section.` make sure your file path is correct in the .env file and make sure data.db is not at the end of your path.
 

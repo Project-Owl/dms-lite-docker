@@ -20,7 +20,7 @@ services:
       volumes:
           - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
 
-  serialwriter:
+  wifiwriter:
       depends_on:
         - "MQTT-Server"
       build:
