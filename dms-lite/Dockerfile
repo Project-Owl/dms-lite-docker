@@ -1,4 +1,4 @@
-FROM node:16-bullseye-slim
+FROM node:16-buster
 
 #RUN apt update && apt install -y node-sqlite3
 COPY . .
