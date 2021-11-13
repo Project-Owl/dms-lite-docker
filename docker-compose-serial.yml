@@ -1,4 +1,4 @@
-#This Docker-compose is what ties all the containers together. 
+#This Docker-compose is what ties all the containers together.
 #This makes for brining up DMS Service easier
 version: "3.3"
 services:
@@ -10,6 +10,7 @@ services:
       - "3000:3000"
     volumes:
       - "${DATABASE_FILE}:/db"
+			- "/usr/bin:/os-sqlite"
   serialwriter:
       depends_on:
         - "web"
@@ -19,4 +20,4 @@ services:
       volumes:
         - "${DATABASE_FILE}:/db"
         - "/dev/ttyUSB0:/dev/ttyUSB0"
-      privileged: true 
+      privileged: true
