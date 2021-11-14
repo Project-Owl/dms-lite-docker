@@ -1,37 +1,40 @@
 
 from time import gmtime, strftime
-import sqlite3
+import mariadb
 import serial
-from sqlite3 import Error
 import json
 import logging
+import os
 
-
-dbFile = "/db/data.db"
-
-  
 ser = serial.Serial('/dev/ttyUSB0',115200)
 
-   
 def writeToDb(theTime, duckId, topic, messageId, payload, path, hops, duckType):
-    
+
     try:
-        conn = sqlite3.connect(dbFile)
+        conn = mariadb.connect(
+			user=os.getenv('MYSQL_USER'),
+			password=os.getenv('MYSQL_PASSWORD'),
+			host="mariadb",
+			database=os.getenv('MYSQL_DATABASE')
+		)
         c = conn.cursor()
         print ("Writing to db...")
         logging.warning("Writing New Message")
         c.execute("INSERT INTO clusterData VALUES (?,?,?,?,?,?,?,?)", (theTime, duckId, topic, messageId, payload, path, hops, duckType))
-        conn.commit()
         conn.close()
-    except Error as e:
+    except mariadb.Error as e:
         print(e)
 
 try:
-    db = sqlite3.connect(dbFile)
-    db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterData (timestamp datetime, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT)")
-    db.commit()
+    db = mariadb.connect(
+		user=os.getenv('MYSQL_USER'),
+		password=os.getenv('MYSQL_PASSWORD'),
+		host="mariadb",
+		database=os.getenv('MYSQL_DATABASE')
+	)
+    db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterData (timestamp DATETIME, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT)")
     db.close()
-except  Error as e:
+except mariadb.Error as e:
     print(e)
 
 while True:

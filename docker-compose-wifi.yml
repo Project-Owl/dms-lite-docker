@@ -1,31 +1,55 @@
-#This Docker-compose is what ties all the containers together. 
-#This makes for brining up DMS Service easier
+#This Docker-compose is what ties all the containers together.
+#This makes for bringing up DMS Service easier
 version: "3.3"
 services:
   web:
     build:
       dockerfile: Dockerfile
       context: ./dms-lite
+		depends_on:
+		  - "mariadb"
+		links:
+		  - "mariadb"
     ports:
       - "3000:3000"
-    volumes:
-      - "${DATABASE_FILE}:/db"
+		environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
 
   MQTT-Server:
-      container_name: mqtt_broker
-      hostname: mosquitto
-      image: eclipse-mosquitto:2.0.10
-      ports: 
-        - "1883:1883"
-      volumes:
-          - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+		container_name: mqtt_broker
+		hostname: mosquitto
+		image: eclipse-mosquitto:2.0.10
+		ports:
+			- "1883:1883"
+		volumes:
+			- ./mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   wifiwriter:
-      depends_on:
-        - "MQTT-Server"
-      build:
-        dockerfile: Dockerfile
-        context: ./Wifi-sql-writer
-      volumes:
-        - "${DATABASE_FILE}:/db"
-          
+		depends_on:
+			- "MQTT-Server"
+			- "mariadb"
+		build:
+			dockerfile: Dockerfile
+			context: ./Wifi-sql-writer
+		links:
+			- mariadb
+		environment:
+			MYSQL_DATABASE: "${MYSQL_DATABASE}"
+			MYSQL_USER: "${MYSQL_USER}"
+			MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+
+	mariadb:
+    image: "mariadb:${MARIADB_VERSION}"
+    restart: "always"
+    volumes:
+      - "/var/lib/mysql/data:/var/lib/mysql/data"
+      - "/var/lib/mysql/logs:/var/lib/mysql/logs"
+      - /var/docker/mariadb/conf:/etc/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+

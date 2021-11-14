@@ -5,7 +5,7 @@ FROM python:rc-buster
 COPY Wifi_sqlwriter.py /
 
 #Installs Paho-Mqtt in the docker enviroment
-RUN pip3 install paho-mqtt
+RUN pip3 install paho-mqtt mariadb
 
 #Tells Docker to run the python code and where it is located
 ENTRYPOINT [ "python3", "Wifi_sqlwriter.py" ]

@@ -3,9 +3,6 @@ var router = express.Router();
 var db = require('./db.js');
 var $ = require('jquery');
 
-
-
-
 /* GET ducks route */
 router.get('/', function(req, res, next) {
 	db.getDuckPlusData().then((ducks) => {

@@ -1,23 +1,49 @@
 #This Docker-compose is what ties all the containers together.
-#This makes for brining up DMS Service easier
+#This makes for bringing up DMS Service easier
 version: "3.3"
 services:
   web:
     build:
       dockerfile: Dockerfile
       context: ./dms-lite
+    restart: "always"
+    depends_on:
+      - mariadb
     ports:
       - "3000:3000"
-    volumes:
-      - "${DATABASE_FILE}:/db"
-			- "/usr/bin:/os-sqlite"
+    links:
+      - mariadb
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+
   serialwriter:
-      depends_on:
-        - "web"
-      build:
-        dockerfile: Dockerfile
-        context: ./serial-sql-writer
-      volumes:
-        - "${DATABASE_FILE}:/db"
-        - "/dev/ttyUSB0:/dev/ttyUSB0"
-      privileged: true
+    depends_on:
+      - mariadb
+    restart: "always"
+    build:
+      dockerfile: Dockerfile
+      context: ./serial-sql-writer
+    volumes:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    privileged: true
+    links:
+      - mariadb
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+
+  mariadb:
+    image: "mariadb:${MARIADB_VERSION}"
+    restart: "always"
+    volumes:
+      - "/var/lib/mysql/data:/var/lib/mysql/data"
+      - "/var/lib/mysql/logs:/var/lib/mysql/logs"
+      - /var/docker/mariadb/conf:/etc/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
