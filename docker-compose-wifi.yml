@@ -43,10 +43,7 @@ services:
   mariadb:
     image: "lscr.io/linuxserver/mariadb"
     container_name: mariadb
-    hostname: mariadb
     restart: "always"
-    ports:
-      - "3306:3306"
     volumes:
       - "/var/lib/mysql/data:/var/lib/mysql/data"
       - "/var/lib/mysql/logs:/var/lib/mysql/logs"

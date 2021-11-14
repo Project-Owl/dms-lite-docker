@@ -66,6 +66,10 @@ try:
 	)
     db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterData (timestamp datetime, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT)")
     db.close()
+    print("Executed create table check")
+    print(os.getenv('MYSQL_USER'))
+    print(os.getenv('MYSQL_PASSWORD'))
+    print(os.getenv('MYSQL_DATABASE'))
 except mariadb.Error as e:
     print(e)
 
