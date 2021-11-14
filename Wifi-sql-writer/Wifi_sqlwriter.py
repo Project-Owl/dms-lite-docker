@@ -8,7 +8,6 @@ import os
 import time
 
 # Put in to hopefully wait long enough for MariaDB to come up
-time.sleep(60)
 status_topic = "#"
 logging.warning("Write to DB is Running")
 
