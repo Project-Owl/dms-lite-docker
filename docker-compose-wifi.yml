@@ -41,7 +41,7 @@ services:
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
 
   mariadb:
-    image: "mariadb:${MARIADB_VERSION}"
+    image: "lscr.io/linuxserver/mariadb"
     restart: "always"
     volumes:
       - "/var/lib/mysql/data:/var/lib/mysql/data"
