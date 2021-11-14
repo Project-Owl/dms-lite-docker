@@ -6,41 +6,41 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./dms-lite
-		depends_on:
-		  - "mariadb"
-		links:
-		  - "mariadb"
+    depends_on:
+      - "mariadb"
+    links:
+      - "mariadb"
     ports:
       - "3000:3000"
-		environment:
+    environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
 
   MQTT-Server:
-		container_name: mqtt_broker
-		hostname: mosquitto
-		image: eclipse-mosquitto:2.0.10
-		ports:
-			- "1883:1883"
-		volumes:
-			- ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    container_name: mqtt_broker
+    hostname: mosquitto
+    image: eclipse-mosquitto:2.0.10
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   wifiwriter:
-		depends_on:
-			- "MQTT-Server"
-			- "mariadb"
-		build:
-			dockerfile: Dockerfile
-			context: ./Wifi-sql-writer
-		links:
-			- mariadb
-		environment:
-			MYSQL_DATABASE: "${MYSQL_DATABASE}"
-			MYSQL_USER: "${MYSQL_USER}"
-			MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    depends_on:
+      - "MQTT-Server"
+      - "mariadb"
+    build:
+      dockerfile: Dockerfile
+      context: ./Wifi-sql-writer
+    links:
+      - mariadb
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
 
-	mariadb:
+  mariadb:
     image: "mariadb:${MARIADB_VERSION}"
     restart: "always"
     volumes:
