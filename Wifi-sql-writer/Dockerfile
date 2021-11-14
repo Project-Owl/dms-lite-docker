@@ -1,5 +1,5 @@
 ##This file is where you setup the container config for the DMSPY DB Writer
-FROM python:rc-buster
+FROM python:buster
 
 #Copies files from the host into the container
 COPY Wifi_sqlwriter.py /

@@ -42,13 +42,12 @@ services:
 
   mariadb:
     image: "lscr.io/linuxserver/mariadb"
-    container_name: mariadb
     restart: "always"
     volumes:
-      - "/var/lib/mysql/data:/var/lib/mysql/data"
-      - "/var/lib/mysql/logs:/var/lib/mysql/logs"
-      - /var/docker/mariadb/conf:/etc/mysql
+      - /var/lib/mysql:/config
     environment:
+      PUID: 1000
+      PGID: 1000
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"

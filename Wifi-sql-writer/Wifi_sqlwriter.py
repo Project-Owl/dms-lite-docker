@@ -5,7 +5,10 @@ import mariadb
 import json
 import logging
 import os
+import time
 
+# Put in to hopefully wait long enough for MariaDB to come up
+time.sleep(60)
 status_topic = "#"
 logging.warning("Write to DB is Running")
 
@@ -35,20 +38,22 @@ def on_message(client, userdata, msg):
 
 def writeToDb(theTime, duckId, topic, messageId, payload, path, hops, duckType):
     conn = mariadb.connect(
-		user=os.getenv('MYSQL_USER'),
-		password=os.getenv('MYSQL_PASSWORD'),
-		host="mariadb",
-		database=os.getenv('MYSQL_DATABASE'),
-		port=3306
-	)
+        user=os.getenv('MYSQL_USER'),
+        password=os.getenv('MYSQL_PASSWORD'),
+        host="mariadb",
+        database=os.getenv('MYSQL_DATABASE'),
+        port=3306
+    )
     c = conn.cursor()
     print ("Writing to db...")
     try:
         c.execute("INSERT INTO clusterData VALUES (?,?,?,?,?,?,?,?)", (theTime, duckId, topic, messageId, payload, path, hops, duckType))
+        conn.commit()
         conn.close()
     except mariadb.Error as e:
         print("Not Correct Packet")
         print(e)
+        logging.warning(e)
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -59,19 +64,18 @@ client.connect("mqtt_broker", 1883, 60)
 
 try:
     db = mariadb.connect(
-		user=os.getenv('MYSQL_USER'),
-		password=os.getenv('MYSQL_PASSWORD'),
-		host="mariadb",
-		database=os.getenv('MYSQL_DATABASE')
-	)
+        user=os.getenv('MYSQL_USER'),
+        password=os.getenv('MYSQL_PASSWORD'),
+        host="mariadb",
+        database=os.getenv('MYSQL_DATABASE'),
+        port=3306
+    )
     db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterData (timestamp datetime, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT)")
+    db.commit()
     db.close()
-    print("Executed create table check")
-    print(os.getenv('MYSQL_USER'))
-    print(os.getenv('MYSQL_PASSWORD'))
-    print(os.getenv('MYSQL_DATABASE'))
 except mariadb.Error as e:
     print(e)
+    logging.warning(e)
 
 
 # Blocking call that processes network traffic, dispatches callbacks and
