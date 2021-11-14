@@ -38,7 +38,8 @@ def writeToDb(theTime, duckId, topic, messageId, payload, path, hops, duckType):
 		user=os.getenv('MYSQL_USER'),
 		password=os.getenv('MYSQL_PASSWORD'),
 		host="mariadb",
-		database=os.getenv('MYSQL_DATABASE')
+		database=os.getenv('MYSQL_DATABASE'),
+		port=3306
 	)
     c = conn.cursor()
     print ("Writing to db...")

@@ -37,6 +37,8 @@ services:
 
   mariadb:
     image: "lscr.io/linuxserver/mariadb"
+    container_name: mariadb
+    hostname: mariadb
     restart: "always"
     volumes:
       - "/var/lib/mysql/data:/var/lib/mysql/data"
