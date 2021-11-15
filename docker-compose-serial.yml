@@ -43,9 +43,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - "/var/lib/mysql/data:/var/lib/mysql/data"
-      - "/var/lib/mysql/logs:/var/lib/mysql/logs"
-      - /var/docker/mariadb/conf:/etc/mysql
+      - /var/lib/mysql:/config
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
