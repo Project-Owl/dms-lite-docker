@@ -1,22 +1,8 @@
-#This Docker-compose is what ties all the containers together.
-#This makes for bringing up DMS Service easier
+---
+# This compose file is used for wifi-connected setups
+# It is meant to be used in tandem with the Base Compose template
 version: "3.3"
 services:
-  web:
-    build:
-      dockerfile: Dockerfile
-      context: ./dms-lite
-    depends_on:
-      - "mariadb"
-    links:
-      - "mariadb"
-    ports:
-      - "3000:3000"
-    environment:
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-
   MQTT-Server:
     container_name: mqtt_broker
     hostname: mosquitto
@@ -25,11 +11,11 @@ services:
       - "1883:1883"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-
   wifiwriter:
     depends_on:
       - "MQTT-Server"
       - "mariadb"
+    image: dms-lite-wifiwriter:${DMSLITEVERSION}
     build:
       dockerfile: Dockerfile
       context: ./Wifi-sql-writer
@@ -39,17 +25,3 @@ services:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-
-  mariadb:
-    image: "lscr.io/linuxserver/mariadb"
-    restart: "always"
-    volumes:
-      - /var/lib/mysql:/config
-    environment:
-      PUID: 1000
-      PGID: 1000
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-

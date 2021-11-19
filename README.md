@@ -47,20 +47,22 @@ In the root folder, there are three subfolders that each contain code to build a
 
 3. Setup environment variable file
 - Make a copy of the file named `.env.example` and save it as `.env`.
-- Modify the new `.env` and enter the information for the `MYSQL` variables. These can be any values you would like as they are applied to the MariaDB instance. These variables are copied to all of the container images.
+- Modify the new `.env` and enter the information for the `MYSQL` variables. These can be any values you would like as they are applied to the MariaDB instance. These variables are copied to all of the container images. Leave `DMSLITEVERSION` as the value reported.
 
 4. Run and build the Docker Images
 - **Serial Connection** run the following command
- `docker-compose -f docker-compose-serial.yml up -d`
+ `docker-compose -f docker-compose-base.yml -f docker-compose-serial.yml up -d`
  *Note: Your [Serial-Papa](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample) needs to be connected to a USB port to build successfully*
 
  - **WiFi Connection** run the following command
- `docker-compose -f docker-compose-wifi.yml up -d`
+ `docker-compose -f docker-compose-base.yml -f docker-compose-wifi.yml up -d`
  *Note: Follow these instructions to connect to your [WiFi-PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi) to your local MQTT Broker*
 
-5. After you successfully insalled and started your Docker images, you can see the DMS-Lite by going to `localhost:3000` inside of a browser.
+5. After you successfully insalled and started your Docker images, you can see the DMS Lite by going to `localhost:3000` inside of a browser.
 
-6. If you would like to stop running your services run  `docker-compose down`.
+6. If you would like to stop running your services:
+- Run `docker-compose -f docker-compose-base.yml -f docker-compose-serial.yml down` for the Serial version
+- Run `docker-compose -f docker-compose-base.yml -f docker-compose-wifi.yml down` for the Wifi version
 
 
 ## Setup your network
@@ -77,15 +79,25 @@ const char* pass = "ChangeMe"; // change to your home WiFi password if not using
 const char* mqtt_server = "10.3.141.1"; // change to local IP if not using RaspAp
 ```
 
-If you need to know how to find your Local IP address your MQTT broker inside your Docker container is operating follow these instructions.
+## Troubleshooting
 
+### Container logs
+If you would like to see the logging output of a particular container, and you are running in detached mode (the `-d` flag above),
+first run the `docker ps` command to get the list of all running containers. Under the `NAMES` column, copy the name of the container
+you want to view and then run `docker logs <containername>`. This will output the most recent log information.
 
+### Failed to execute script
+If you get this error `Failed to execute script docker-compose`, make sure Docker is running.
 
-## Troubleshooting:
+### Local container image cleanup
+If you are running into errors and need to clean up the existing images to rebuild them, first make sure you are not running any
+DMS Lite components by running the appropriate `docker-compose down` script from the steps above. You can also check for any running
+images with `docker ps`.
 
--   If you would like to see the logging output of all the containers running then run `docker-compose -f docker-compose-serial.yml or docker-compose-wifi.yml up`. This will show a bunch of output of the running containers. If you would like to close out the service hit `Ctrl+C` on your machine's keyboard.
+Next, run `docker images`. This will output all of the container images stored on your system. Identify the name of the image under
+REPOSITORY and it's TAG and then run `docker image rm IMAGENAME:TAG`, replacing `IMAGENAME` and `TAG` with the corresponding values.
 
-- If you get this error `Failed to execute script docker-compose`, make sure Docker is running.
+Rerunning the docker compose step from above will rebuild the image again from scratch.
 
 
 ## Contributing

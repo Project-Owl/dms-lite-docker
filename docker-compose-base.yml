@@ -1,0 +1,34 @@
+---
+# This is the Base Compose template. It contains the reusable components
+# for running DMS Lite
+version: "3.3"
+services:
+  web:
+    build:
+      dockerfile: Dockerfile
+      context: ./dms-lite
+    image: dms-lite-web:${DMSLITEVERSION}
+    restart: "always"
+    depends_on:
+      - mariadb
+    ports:
+      - "3000:3000"
+    links:
+      - mariadb
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:latest
+    hostname: mariadb
+    restart: "always"
+    volumes:
+      - /var/lib/mysql:/config
+    environment:
+      PUID: 1000
+      PGID: 1000
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
