@@ -1,4 +1,6 @@
-FROM python:buster
+FROM python:slim
+
+RUN apt update && apt upgrade && apt install -y gcc libmariadb3 libmariadb-dev
 
 COPY serial_sqlwriter.py /
 
