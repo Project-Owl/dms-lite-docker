@@ -1,7 +1,7 @@
 ##This file is where you setup the container config for the DMSPY DB Writer
-FROM python:alpine
+FROM python:slim-buster
 
-RUN apk update && apk upgrade && apk add gcc musl-dev mariadb-connector-c-dev
+RUN apt update && apt upgrade && apt install -y gcc libmariadb-dev libmariadb3
 
 #Copies files from the host into the container
 COPY Wifi_sqlwriter.py /

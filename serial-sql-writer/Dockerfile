@@ -1,4 +1,4 @@
-FROM python:slim
+FROM python:slim-buster
 
 RUN apt update && apt upgrade && apt install -y gcc libmariadb-dev libmariadb3
 

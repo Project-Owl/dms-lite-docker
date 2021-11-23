@@ -12,7 +12,7 @@ services:
       dockerfile: Dockerfile
       context: ./serial-sql-writer
     volumes:
-      - "/dev/cu.usbserial-0001:/dev/ttyUSB0"
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
     privileged: true
     links:
       - mariadb
