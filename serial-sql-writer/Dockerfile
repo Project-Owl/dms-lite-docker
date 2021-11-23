@@ -1,6 +1,6 @@
 FROM python:slim
 
-RUN apt update && apt upgrade && apt install -y gcc libmariadb3 libmariadb-dev
+RUN apt update && apt upgrade && apt install -y gcc libmariadb-dev libmariadb3
 
 COPY serial_sqlwriter.py /
 
