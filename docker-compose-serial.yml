@@ -1,22 +1,22 @@
-#This Docker-compose is what ties all the containers together. 
-#This makes for brining up DMS Service easier
+---
+# This compose file is used for serial communications to USB-connected devices
+# It is meant to be used in tandem with the Base Compose template
 version: "3.3"
 services:
-  web:
+   serialwriter:
+    depends_on:
+      - mariadb
+    restart: "always"
+    image: dms-lite-serialwriter:${DMSLITEVERSION}
     build:
       dockerfile: Dockerfile
-      context: ./dms-lite
-    ports:
-      - "3000:3000"
+      context: ./serial-sql-writer
     volumes:
-      - "${DATABASE_FILE}:/db"
-  serialwriter:
-      depends_on:
-        - "web"
-      build:
-        dockerfile: Dockerfile
-        context: ./serial-sql-writer
-      volumes:
-        - "${DATABASE_FILE}:/db"
-        - "/dev/ttyUSB0:/dev/ttyUSB0"
-      privileged: true 
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    privileged: true
+    links:
+      - mariadb
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"

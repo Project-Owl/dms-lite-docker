@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="UTF8">
   <head>
-    <%- include partials/head.ejs %>
-    <%- include partials/nav.ejs %>
+    <%- include ('partials/head') %>
+    <%- include ('partials/nav') %>
     	<script src="/stylesheets/tablefilter/tablefilter.js"></script>
 
 	  <title>DMS LITE</title>
@@ -10,7 +10,7 @@
   </head>
   <body>
 
-  	<div id="data"> 	
+  	<div id="data">
 	  	<div class="container-xxl">
 		    <div class="row">
 		      <div class="col-sm-12 main-section">
@@ -43,12 +43,12 @@
 					<% }); %>
 
 		      		</tbody>
-		      	</table>        
+		      	</table>
 		      </div>
 		  </div>
 	    </div>
 	</div>
-    <%- include partials/footer.ejs %>
+    <%- include ('partials/footer') %>
   </body>
   <script>
 	  // function reloadThePage(){
@@ -57,9 +57,9 @@
 	  // setInterval(reloadThePage,8000)
 
 	var tf = new TableFilter(document.querySelector('.main-table'), {
-        
+
             filters_row_index: 1,
-            enable_checklist_reset_filter: false, 
+            enable_checklist_reset_filter: false,
 		state: {
           types: ['hash'],
           filters: true
