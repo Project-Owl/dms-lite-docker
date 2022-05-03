@@ -20,7 +20,7 @@ services:
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
   mariadb:
-    image: lscr.io/linuxserver/mariadb@sha256:e667280bba05043c53b1a0822194273f8de87c7fcb0b9a9ba3665db9a7fef50d
+    image: lscr.io/linuxserver/mariadb:10.5.13-r0-ls43
     hostname: mariadb
     restart: "always"
     volumes:

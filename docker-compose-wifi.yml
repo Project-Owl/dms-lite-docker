@@ -6,7 +6,7 @@ services:
   MQTT-Server:
     container_name: mqtt_broker
     hostname: mosquitto
-    image: eclipse-mosquitto@sha256:3fe51e69feba9c20a2d16414052ad5639baa2afcfb33f4a955c6fd33e0903eb5
+    image: eclipse-mosquitto:2.0.10
     ports:
       - "1883:1883"
     volumes:
