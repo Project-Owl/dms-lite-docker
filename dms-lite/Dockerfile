@@ -1,4 +1,4 @@
-FROM node@sha256:418e07e94bad2fa2b2f148e1025775e4b249528ddea07d353eb350d7eb108fd1
+FROM node:lts-slim
 
 COPY . .
 
