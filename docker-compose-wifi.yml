@@ -7,6 +7,7 @@ services:
     container_name: mqtt_broker
     hostname: mosquitto
     image: eclipse-mosquitto:2.0.10
+    restart: "always"
     ports:
       - "1883:1883"
     volumes:
@@ -16,9 +17,10 @@ services:
       - "MQTT-Server"
       - "mariadb"
     image: dms-lite-wifiwriter:${DMSLITEVERSION}
+    restart: "always"
     build:
       dockerfile: Dockerfile
-      context: ./Wifi-sql-writer
+      context: ./wifi-sql-writer
     links:
       - mariadb
     environment:

@@ -3,7 +3,7 @@
 # It is meant to be used in tandem with the Base Compose template
 version: "3.3"
 services:
-   serialwriter:
+  serialwriter:
     depends_on:
       - mariadb
     restart: "always"
