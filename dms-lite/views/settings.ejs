@@ -1,19 +1,80 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <%- include ('partials/head') %>
-    <%- include ('partials/nav') %>
-  </head>
-  <body>
-  	<div id="settings">
-	  	<div class="container">
-		    <div class="row">
-		      <div class="col-sm-12">
-                  <h4 id="main-text">Settings</h4>
-		      </div>
-		  </div>
-	    </div>
+<head>
+	<%- include ('partials/head') %>
+	<%- include ('partials/nav') %>
+	<script>
+		$(document).ready(function() {
+			$("#detailedView").change(function() {
+				document.cookie = "detailedView=" + $("#detailedView").is(":checked");
+			});
+		});
+	</script>
+
+	<script>
+		function onChangeMap() {
+			let type = "";
+				if ($("#mapType")[0].selectedIndex == 0) {
+					type = "none";
+				} else if ($("#mapType")[0].selectedIndex == 1) {
+					type = "google";
+				} else if ($("#mapType")[0].selectedIndex == 2) {
+					type = "osm";
+				}
+				document.cookie = "mapType=" + type;
+		}
+	</script>
+
+	<%
+		let detailedViewValue = "";
+		if (cookies.detailedView == "true") {
+			detailedViewValue = "checked";
+		}
+
+		// gps default map type
+		let detailedViewGps = "Default Map";	// mapType : none, google, osm
+
+		let noneSelected = "";
+		let googleSelected = "";
+		let osmSelected = "";
+
+		if (cookies.mapType == "none") {
+			detailedViewGps = "Do not open Maps on detailed view";
+			noneSelected = "selected";
+		} else if (cookies.mapType == "google") {
+			detailedViewGps = "Google Maps";
+			googleSelected = "selected";
+		} else if (cookies.mapType == "osm") {
+			detailedViewGps = "Open Street Map";
+			osmSelected = "selected";
+		}
+	%>
+
+</head>
+<body>
+	<div id="settings">
+		<div class="container">
+			<div class="row">
+			<div class="col-sm-12">
+				<h4 id="main-text">Settings</h4>
+				<div class="form">
+
+					<div class="form-check form-switch">
+						<label class="form-check-label" for="flexSwitchCheckDefault">Detailed View</label>
+						<input class="form-check-input" type="checkbox" id="detailedView" <%=detailedViewValue%>/>
+					</div>
+
+					<select id="mapType" name="mapTypes" class="form-select" aria-label="Default select example" onchange="onChangeMap();" style="width: auto;">
+						<option <%=noneSelected%> value="none">Do not open Maps on detailed view</option>
+						<option <%=googleSelected%> value="google">Google Maps</option>
+						<option <%=osmSelected%> value="osm">Open Street Map</option>
+					</select>
+
+				</div>
+			</div>
+		</div>
+		</div>
 	</div>
-    <%- include ('partials/footer') %>
-  </body>
+	<%- include ('partials/footer') %>
+</body>
 </html>

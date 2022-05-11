@@ -5,17 +5,17 @@ const db = require('./db.js');
 /* GET data route */
 router.get('/', function(req, res, next) {
 
-
   db.getAllData().then((ducks) => {
     res.render('data',
         {
           title: 'Express',
-          something: ducks
+          something: ducks,
+          cookies: req.cookies
         });
-
   });
 
 });
+
 
 router.get('/getAllData', function (req, res, next) {
   db.getAllData().then((response) => {
