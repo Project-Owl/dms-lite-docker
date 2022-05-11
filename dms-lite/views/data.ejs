@@ -32,10 +32,10 @@
 		<thead>
 			<th>DUCKID</th>
 			<th>TIMESTAMP</th>
-			<th>PAYLOAD</th>
 			<th>TOPIC</th>
 			<th>MESSAGE ID</th>
 			<th>PATH</th>
+			<th>PAYLOAD</th>
 			<% if(cookies.detailedView == "true"){ %>
 				<th>HOPS</th>
 				<th>TYPE</th>
@@ -115,14 +115,13 @@
 				<tr>
 					<td><%= duck.duck_id %></td>
 					<td><%= duck.timestamp %></td>
-					<td>
-						<% displaySensorData(duck); %>
-					</td>
 					<td><%= duck.topic %></td>
 					<td><%= duck.message_id %></td>
 					<td><%= duck.path %></td>
-
-					<%if(cookies.detailedView == "true"){%>
+					<td>
+						<% displaySensorData(duck); %>
+					</td>
+					<% if (cookies.detailedView == "true") { %>
 						<td><%= duck.hops %></td>
 						<td><%= duck.duck_type%></td>
 					<% } %>
