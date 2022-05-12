@@ -40,6 +40,10 @@ body {
     width: 100%;
 }
 
+#data .gps-link {
+    font-size: 9pt;
+}
+
 
 /* DUCKS PAGE */
 
