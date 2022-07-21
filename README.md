@@ -34,9 +34,9 @@ will need to install Docker Compose for your operating system.
 ## Images
 In the root folder, there are three subfolders that each contain code to build a Docker image:
 
- 1. **Web** Contains the web application/front end.
- 2. **WiFi-Data-Writer** Writes your incoming data from MQTT into the database
- 3. **Serial-Data-Writer** If a serial-usb connection is used this image will write incoming serial data to the database.
+ 1. **dms-lite** Contains the web application/front end.
+ 2. **wifi-sql-writer** Writes your incoming data from MQTT into the database
+ 3. **serial-sql-writer** If a serial-usb connection is used this image will write incoming serial data to the database.
 
 ## Install
 
@@ -47,22 +47,32 @@ In the root folder, there are three subfolders that each contain code to build a
 
 3. Setup environment variable file
 - Make a copy of the file named `.env.example` and save it as `.env`.
-- Modify the new `.env` and enter the information for the `MYSQL` variables. These can be any values you would like as they are applied to the MariaDB instance. These variables are copied to all of the container images. Leave `DMSLITEVERSION` as the value reported.
+- Modify the new `.env` and enter the information for the `MYSQL` variables. These can be any values you would like as they are applied to the MariaDB instance. These variables are copied to all of the container images. For the `MYSQL_HOST` variable, there are two options:
 
-4. Run and build the Docker Images
-- **Serial Connection** run the following command
- `docker-compose -f docker-compose-base.yml -f docker-compose-serial.yml up -d`
+   * If you're just running the containers as-is, you will set this to `mariadb`.
+   * If you're developing locally and still want to run the database as a container, use `localhost`.
+
+4. If you are planning to run the `serial` version, you will also need to modify `docker-compose-serial.yml` with the correct USB mapping:
+
+   * For a Linux-based host, the mapping should be `"/dev/ttyUSB0:/dev/ttyUSB0"`
+   * For a macOS-based host, the mapping should be `"/dev/cu.usbserialXXXXX:/dev/ttyUSB0"`. It is possible the macOS host will assign a unique identifier to the port. You can verify from a Terminal window by running `ls /dev/cu*` to identify the correct port.
+   * For a Windows-based host, the mapping should be `"class/86E0D1E0-8089-11D0-9CE4-08003E301F73:/dev/ttyUSB0"`. This is for USB devices that show up as a COM port in the Windows devices list. For the list of class GUIDs, please refer to [this](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/hardware-devices-in-containers?WT.mc_id=IoT-MVP-5002324) documentation.
+
+
+5. Run and build the Docker Images
+   - **Serial Connection** run the following command
+ `docker compose -f docker-compose-base.yml -f docker-compose-serial.yml up -d`
  *Note: Your [Serial-Papa](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample) needs to be connected to a USB port to build successfully*
 
- - **WiFi Connection** run the following command
- `docker-compose -f docker-compose-base.yml -f docker-compose-wifi.yml up -d`
+    - **WiFi Connection** run the following command
+ `docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml up -d`
  *Note: Follow these instructions to connect to your [WiFi-PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi) to your local MQTT Broker*
 
-5. After you successfully insalled and started your Docker images, you can see the DMS Lite by going to `localhost:3000` inside of a browser.
+6. After you successfully installed and started your Docker images, you can see the DMS Lite by going to `localhost:3000` inside of a browser.
 
-6. If you would like to stop running your services:
-- Run `docker-compose -f docker-compose-base.yml -f docker-compose-serial.yml down` for the Serial version
-- Run `docker-compose -f docker-compose-base.yml -f docker-compose-wifi.yml down` for the Wifi version
+7. If you would like to stop running your services:
+   - Run `docker compose -f docker-compose-base.yml -f docker-compose-serial.yml down` for the Serial version
+   - Run `docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml down` for the Wifi version
 
 
 ## Setup your network
@@ -83,7 +93,7 @@ const char* mqtt_server = "10.3.141.1"; // change to local IP if not using RaspA
 
 ### Container logs
 If you would like to see the logging output of a particular container, and you are running in detached mode (the `-d` flag above),
-first run the `docker ps` command to get the list of all running containers. Under the `NAMES` column, copy the name of the container
+first run the `docker container ls` command to get the list of all running containers. Under the `NAMES` column, copy the name of the container
 you want to view and then run `docker logs <containername>`. This will output the most recent log information.
 
 ### Failed to execute script
@@ -92,7 +102,7 @@ If you get this error `Failed to execute script docker-compose`, make sure Docke
 ### Local container image cleanup
 If you are running into errors and need to clean up the existing images to rebuild them, first make sure you are not running any
 DMS Lite components by running the appropriate `docker-compose down` script from the steps above. You can also check for any running
-images with `docker ps`.
+images with `docker container ls`.
 
 Next, run `docker images`. This will output all of the container images stored on your system. Identify the name of the image under
 REPOSITORY and it's TAG and then run `docker image rm IMAGENAME:TAG`, replacing `IMAGENAME` and `TAG` with the corresponding values.
@@ -110,6 +120,6 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our Code of Conduc
 This project is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details.
 
 ## Version
-v 1.0.0
+v1.0.0
 
 

@@ -7,11 +7,11 @@ services:
     depends_on:
       - mariadb
     restart: "always"
-    image: dms-lite-serialwriter:${DMSLITEVERSION}
+    image: dms-lite-serialwriter
     build:
       dockerfile: Dockerfile
       context: ./serial-sql-writer
-    volumes:
+    devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
     privileged: true
     links:
@@ -20,3 +20,4 @@ services:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_HOST: "${MYSQL_HOST}"

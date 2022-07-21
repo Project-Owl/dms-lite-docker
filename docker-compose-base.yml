@@ -7,7 +7,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./dms-lite
-    image: dms-lite-web:${DMSLITEVERSION}
+    image: dms-lite-web
     restart: "always"
     depends_on:
       - mariadb
@@ -19,12 +19,15 @@ services:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_HOST: "${MYSQL_HOST}"
   mariadb:
     image: lscr.io/linuxserver/mariadb:10.5.13-r0-ls43
     hostname: mariadb
     restart: "always"
+    ports:
+      - "3306:3306"
     volumes:
-      - /var/lib/mysql:/config
+      - ./data:/config
     environment:
       PUID: 1000
       PGID: 1000

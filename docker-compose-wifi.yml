@@ -16,7 +16,7 @@ services:
     depends_on:
       - "MQTT-Server"
       - "mariadb"
-    image: dms-lite-wifiwriter:${DMSLITEVERSION}
+    image: dms-lite-wifiwriter
     restart: "always"
     build:
       dockerfile: Dockerfile
@@ -27,3 +27,4 @@ services:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_HOST: "${MYSQL_HOST}"
