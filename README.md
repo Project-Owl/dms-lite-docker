@@ -50,7 +50,7 @@ In the root folder, there are three subfolders that each contain code to build a
 - Modify the new `.env` and enter the information for the `MYSQL` variables. These can be any values you would like as they are applied to the MariaDB instance. These variables are copied to all of the container images. For the `MYSQL_HOST` variable, there are two options:
 
    * If you're just running the containers as-is, you will set this to `mariadb`.
-   * If you're developing locally and still want to run the database to run in the container, use `localhost`.
+   * If you're developing locally and still want to run the database as a container, use `localhost`.
 
 4. If you are planning to run the `serial` version, you will also need to modify `docker-compose-serial.yml` with the correct USB mapping:
 
