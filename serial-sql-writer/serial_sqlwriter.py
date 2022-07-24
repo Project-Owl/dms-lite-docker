@@ -1,5 +1,6 @@
-
+import time
 from time import gmtime, strftime
+import threading
 import mariadb
 import serial
 import json
@@ -25,6 +26,29 @@ def writeToDb(theTime, duckId, topic, messageId, payload, path, hops, duckType):
     except mariadb.Error as e:
         print(e)
 
+def handleCommands():
+	while True:
+		try:
+			conn = mariadb.connect(
+			user=os.getenv('MYSQL_USER'),
+			password=os.getenv('MYSQL_PASSWORD'),
+			host="mariadb",
+			database=os.getenv('MYSQL_DATABASE')
+			)
+			c = conn.cursor()
+			c.execute("SELECT * FROM clusterCommands LIMIT 1")
+			for (timestamp, topic, payload) in c:
+			    print (f"Executing Command {topic} with {payload}")
+			    command = {"topic": topic, "payload": payload}
+			    ser.write(json.dumps(command).encode('utf-8'))
+			    query = f"DELETE FROM clusterCommands WHERE timestamp='{timestamp}'"
+			    c.execute(query)
+			    conn.commit()
+			    conn.close()
+		except mariadb.Error as e:
+			print(e)
+		time.sleep(1)
+
 try:
     db = mariadb.connect(
         user=os.getenv('MYSQL_USER'),
@@ -33,11 +57,13 @@ try:
         database=os.getenv('MYSQL_DATABASE')
     )
     db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterData (timestamp DATETIME, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT)")
+    db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterCommands (timestamp TEXT, topic TEXT, payload TEXT)")
     db.commit()
-    db.close()
 except mariadb.Error as e:
     print(e)
 
+
+threading.Thread(target=handleCommands).start()
 while True:
     theTime = strftime("%Y-%m-%d %H:%M:%S", gmtime())
     payload = ser.readline()
