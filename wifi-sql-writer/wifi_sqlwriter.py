@@ -39,7 +39,7 @@ def writeToDb(theTime, duckId, topic, messageId, payload, path, hops, duckType):
     conn = mariadb.connect(
         user=os.getenv('MYSQL_USER'),
         password=os.getenv('MYSQL_PASSWORD'),
-        host="mariadb",
+        host=os.getenv('MYSQL_HOST'),
         database=os.getenv('MYSQL_DATABASE'),
         port=3306
     )
@@ -65,7 +65,7 @@ try:
     db = mariadb.connect(
         user=os.getenv('MYSQL_USER'),
         password=os.getenv('MYSQL_PASSWORD'),
-        host="mariadb",
+        host=os.getenv('MYSQL_HOST'),
         database=os.getenv('MYSQL_DATABASE'),
         port=3306
     )
