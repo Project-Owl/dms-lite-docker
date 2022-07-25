@@ -33,8 +33,9 @@ def handleCommands():
 			conn = mariadb.connect(
 			user=os.getenv('MYSQL_USER'),
 			password=os.getenv('MYSQL_PASSWORD'),
-			host="mariadb",
-			database=os.getenv('MYSQL_DATABASE')
+			host=os.egetenv('MYSQL_HOST'),
+			database=os.getenv('MYSQL_DATABASE'),
+			port=3306
 			)
 			c = conn.cursor()
 			c.execute("SELECT * FROM clusterCommands LIMIT 1")
@@ -55,7 +56,7 @@ try:
         user=os.getenv('MYSQL_USER'),
         password=os.getenv('MYSQL_PASSWORD'),
         host=os.getenv('MYSQL_HOST'),
-        database=os.getenv('MYSQL_DATABASE')
+        database=os.getenv('MYSQL_DATABASE'),
 		port=3306
     )
     db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterData (timestamp DATETIME, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT)")
