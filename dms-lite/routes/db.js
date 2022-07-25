@@ -1,7 +1,7 @@
 const mariadb = require('mariadb');
 
 const pool = mariadb.createPool({
-	host: "mariadb",
+	host: process.env.MYSQL_HOST,
 	user: process.env.MYSQL_USER,
 	password: process.env.MYSQL_PASSWORD,
 	database: process.env.MYSQL_DATABASE,
@@ -54,12 +54,12 @@ function getLastCount(count) {
 }
 
 function getDuckPlusData() {
-	const sql = `SELECT p.timestamp, p.duck_id, p.topic, p.message_id, p.payload, p.path, p.hops, p.duck_type  
-		FROM 
-		( 
-			SELECT ROW_NUMBER() OVER ( PARTITION BY duck_id ORDER BY timestamp DESC ) 
-				RowNum, timestamp, duck_id, topic, message_id, payload, path, hops, duck_type  
-			FROM clusterData 
+	const sql = `SELECT p.timestamp, p.duck_id, p.topic, p.message_id, p.payload, p.path, p.hops, p.duck_type
+		FROM
+		(
+			SELECT ROW_NUMBER() OVER ( PARTITION BY duck_id ORDER BY timestamp DESC )
+				RowNum, timestamp, duck_id, topic, message_id, payload, path, hops, duck_type
+			FROM clusterData
 		) p
 		WHERE p.RowNum = 1;`;
 
