@@ -70,6 +70,7 @@ try:
         port=3306
     )
     db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterData (timestamp datetime, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT)")
+    db.cursor().execute("CREATE TABLE IF NOT EXISTS clusterCommands (timestamp TEXT, topic TEXT, payload TEXT)")
     db.commit()
     db.close()
 except mariadb.Error as e:
