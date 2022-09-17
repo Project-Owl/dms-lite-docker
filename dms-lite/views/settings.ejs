@@ -3,6 +3,7 @@
 <head>
 	<%- include ('partials/head') %>
 	<%- include ('partials/nav') %>
+	<script src="new-js/information.js" type="module"></script>
 	<script>
 		$(document).ready(function() {
 			$("#detailedView").change(function() {
@@ -69,7 +70,22 @@
 						<option <%=googleSelected%> value="google">Google Maps</option>
 						<option <%=osmSelected%> value="osm">Open Street Map</option>
 					</select>
+					<br>
+					<br>
+					<label>CHOOSE OPTIONS FOR DATA PAGE</label>
+					<br>
+					<!-- to be updated with new graphs -->
+					<label for="graphtype">Choose a graph: </label>
+					<select name="graphtype" id="graphtype">
+						<option value="line">Line Graph (1 topic)</option>
+						<!-- <option value="multiLine">Multi Line Graph (2 topic)</option> -->
+					</select>
+					<br>
+					<label>Choose a topic for the graph:</label>
+					<select id="selecttopic"></select>
+					<br>
 
+					<button id="toData">Save data</button>			
 				</div>
 			</div>
 		</div>
