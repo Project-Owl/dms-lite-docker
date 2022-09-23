@@ -36,24 +36,6 @@ services:
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
       MYSQL_HOST: "${MYSQL_HOST}"
-  # backend:
-  #   build:
-  #     dockerfile: Dockerfile
-  #     context: ./db-dms-lite
-  #   image: db-dms-lite
-  #   restart: "always"
-  #   depends_on:
-  #     - mariadb
-  #     - web
-  #   ports:
-  #     - "5000:5000"
-  #   environment:
-  #     PUID: 1000
-  #     PGID: 1000
-  #     MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-  #     MYSQL_DATABASE: "${MYSQL_DATABASE}"
-  #     MYSQL_USER: "${MYSQL_USER}"
-  #     MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-  #     MYSQL_HOST: "${MYSQL_HOST}"
+
 
 

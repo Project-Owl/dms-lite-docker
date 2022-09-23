@@ -9,10 +9,6 @@ services:
       context: ./db-dms-lite
     image: db-dms-lite
     restart: "always"
-    # depends_on:
-    #   - mariadb
-    # links: 
-    #   - mariadb
     ports:
       - "5000:5000"
     environment:

@@ -1,26 +1,11 @@
-#INSTALL API
-cd dms-lite-docker
-cd db-dms-lite
-pip install -r requirements.txt 
+#New way to run the wifi version with the visuals update:
 
+docker compose -f docker-compose-base.yml -f docker-compose-back.yml
+-f docker-compose-wifi.yml up -d
 
-## NEW UPDATES TO DMS
-cd dms-lite
->>> public 
->>> new-js 
- - information.js
- - jquery.js
- - utils.js
- - visuals.js
- - chart.js 
->>> stylesheets
->>> new-style
- - styles.css
+--------------------------
 
-INSTALL CHART.JS AND JQUERY.JS
-cd dms-lite
-cd public
-cd new-js
-npm install chart.js
-npm install jquery
-### jquery-3.6.0.min.js 
+For visuals to work make sure the "http://127.0.0.1:5000" is free
+
+--------------------------
+
