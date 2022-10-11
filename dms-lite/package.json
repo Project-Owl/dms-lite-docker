@@ -18,7 +18,8 @@
     "leaflet": "^1.8.0",
     "mariadb": "^2.5.5",
     "morgan": "~1.9.1",
-    "tablefilter": "^0.7.2"
+    "tablefilter": "^0.7.2",
+    "chart.js":"3.9.1"
   },
   "devDependencies": {
     "font-awesome": "^4.7.0",
