@@ -35,7 +35,10 @@ app.use('/ducks', ducksRouter);
 // Serve libraries that were installed via npm - thanks to https://stackoverflow.com/a/70744989
 app.use('/stylesheets/leaflet/', express.static(path.join(__dirname, "node_modules/leaflet/dist/")));
 app.use('/stylesheets/bootstrap/', express.static(path.join(__dirname, "node_modules/bootstrap/dist/")));
-app.use('/stylesheets/tablefilter/', express.static(path.join(__dirname, "node_modules/tablefilter/dist/tablefilter/")));
+app.use('/stylesheets/tablefilter/', express.static(path.join(__dirname, "node_modules/leaflet/dist/")));
+app.use('/scripts/chart.js/', express.static(path.join(__dirname, "node_modules/chart.js/dist/chart.js/")));
+app.use('/scripts/chart.esm.js/', express.static(path.join(__dirname, "node_modules/chart.js/dist/helper.esm.js/")));
+
 
 app.get("/", (req, res) => {
   // check if user is logged in, by checking cookie

@@ -1,14 +1,24 @@
 import mariadb
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from flask_cors import CORS
 import os
 import json
 
 app = Flask(__name__)
-CORS(app)
+# app.config["DEBUG"] = True
+CORS(app, origins=["http://localhost:3000"])
 api = Api(app)
 
+class ApiBeta(Resource):
+     def get(self):
+         return hello()
+api.add_resource(ApiBeta, '/')
+
+def hello():
+    return ''' API SERVER RUNNING (BETA)  '''
+
+# @app.route('/showPayload/<string:topic>', methods=['GET'])
 def getPayload(topic):
     payload = []
     label = []
@@ -42,7 +52,8 @@ def getPayload(topic):
     except Exception as e:
         print(e)
 
-#called when the page loads
+# #called when the page loads
+# @app.route('/getTopics', methods=['GET'])
 def getTopics():
     topiclst=[]
     try:
@@ -66,7 +77,8 @@ def getTopics():
     except Exception as e:
         print(e)
 
-#For updates and warnings: 
+# #For updates and warnings: 
+# @app.route('/checkOutlier/<string:topic>/<int:maxval>/<int:minval>', methods=['GET'])
 def outlierWarning(topic, maxval, minval):
     payloadout = []
     labelout = []
@@ -116,5 +128,4 @@ api.add_resource(checkOutlier, "/checkOutlier/<string:topic>/<int:maxval>/<int:m
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(debug=True, host='0.0.0.0')
