@@ -54,6 +54,15 @@ router.get('/getLastCount/:count', function (req, res, next) {
   });
 });
 
+router.post('/postEnableWiFi', function (req, res) {
+  db.postCommand(" /wifi/", "1" + String(req.body.duck_id));
+  res.redirect('/ducks');
+});
+
+router.post('/postDisableWiFi', function (req, res) {
+  db.postCommand(" /wifi/", "0" + String(req.body.duck_id));
+  res.redirect('/ducks');
+});
 
 
 new Date().toLocaleString()
