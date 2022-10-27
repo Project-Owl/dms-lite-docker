@@ -1,7 +1,7 @@
 ---
 # This compose file is used for serial communications to USB-connected devices
 # It is meant to be used in tandem with the Base Compose template
-version: "3.3"
+version: "3"
 services:
   serialwriter:
     depends_on:

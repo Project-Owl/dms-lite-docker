@@ -1,7 +1,7 @@
 ---
 # This compose file is used for wifi-connected setups
 # It is meant to be used in tandem with the Base Compose template
-version: "3.3"
+version: "3"
 services:
   MQTT-Server:
     container_name: mqtt_broker
