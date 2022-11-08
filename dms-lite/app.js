@@ -39,6 +39,7 @@ app.use('/stylesheets/tablefilter/', express.static(path.join(__dirname, "node_m
 app.use('/scripts/chart.js/', express.static(path.join(__dirname, "node_modules/chart.js/dist/chart.js/")));
 app.use('/scripts/chart.esm.js/', express.static(path.join(__dirname, "node_modules/chart.js/dist/helper.esm.js/")));
 
+
 app.get("/", (req, res) => {
   // check if user is logged in, by checking cookie
   let detailedView = req.cookies.detailedView;
