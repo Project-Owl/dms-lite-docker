@@ -29,11 +29,29 @@
 </head>
 <body>
 
-	<div id="data">
+
 	<div class="container-xxl">
 	<div class="row">
 	<div class="col-sm-12 main-section">
 	<h4 id="main-text">Recent Data</h4>
+	<div id="data">
+		<span id="data_amount"></span>
+		<div id="warnings">
+			<span>
+
+			</span>
+			
+		</div>
+			<section>
+				<div class="row" style="position: relative;">
+					<div class="col-md-12">
+						<div id="chart" style="position: relative; height: 40vh; width: 100%;">
+							<canvas id="mychart" height="50" width="100" ></canvas>
+						</div>
+					</div>
+				</div>
+			</section>
+	</div>
 	<table class="table main-table">
 		<thead>
 			<th>DUCKID</th>
@@ -136,18 +154,8 @@
 
 		</tbody>
 	</table>
-	<section>
-		<div class="row" style="position: relative;">
-			<div class="col-md-12">
-				<div id="chart" style="position: relative; height: 40vh; width: 100%;">
-					<canvas id="mychart" height="50" width="100" ></canvas>
-				</div>
-			</div>
-		</div>
-	</section>
 	</div>
 	
-	</div>
 	</div>
 	</div>
 	</div>

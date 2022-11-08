@@ -1,7 +1,7 @@
 ---
 # This is the Base Compose template. It contains the reusable components
 # for running DMS Lite
-version: "3.3"
+version: "3"
 services:
   web:
     build:

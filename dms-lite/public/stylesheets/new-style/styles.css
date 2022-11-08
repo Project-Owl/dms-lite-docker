@@ -32,6 +32,22 @@ p{
 p #begin-date, p #end-date{
 	width:25%;
 }
+section#graphsec{
+	height: 50;
+	width: 100;
+
+}
+div#data{
+	height: 15%;
+	width: 100%;
+	padding-top: 32px;
+	padding-bottom: 32px;
+}
+h4#main-text{
+	margin-top:15px;
+	padding-top: 20px;
+
+}
 
 /* chart */
 canvas{

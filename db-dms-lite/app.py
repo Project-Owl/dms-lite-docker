@@ -19,7 +19,7 @@ def hello():
     return ''' API SERVER RUNNING (BETA)  '''
 
 # @app.route('/showPayload/<string:topic>', methods=['GET'])
-def getPayload(topic):
+def getPayload(topic,data):
     payload = []
     label = []
     try:
@@ -33,7 +33,7 @@ def getPayload(topic):
         cursor = conn.cursor()
         cursor.execute(
             '''SELECT payload, timestamp FROM clusterData
-            WHERE topic = ?''', (topic,))
+            WHERE topic = ? LIMIT ?''', (topic,data))
         rows = cursor.fetchall()
         # grabs the row obj and jsonify datetime
         for info in rows:
@@ -113,8 +113,8 @@ def outlierWarning(topic, maxval, minval):
 
 
 class show_Payload(Resource):
-    def get(self, topic):
-        return getPayload(topic), 200
+    def get(self, topic, data):
+        return getPayload(topic, data), 200
 class get_Topics(Resource):
     def get(self):
         return getTopics(), 200
@@ -122,7 +122,7 @@ class checkOutlier(Resource):
     def get(self, topic, maxval, minval):
         return outlierWarning(topic, maxval, minval), 200
 
-api.add_resource(show_Payload, "/showPayload/<string:topic>")
+api.add_resource(show_Payload, "/showPayload/<string:topic>/<int:data>")
 api.add_resource(get_Topics, "/getTopics")
 api.add_resource(checkOutlier, "/checkOutlier/<string:topic>/<int:maxval>/<int:minval>")
 
