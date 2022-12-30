@@ -16,6 +16,11 @@ const configl = {
   data: data,
   options: {
     responsive: true,
+    scales:{
+      y:{
+        beginAtZero: true
+      }
+    },
     plugins: {
       legend: {
         position: 'top',
@@ -39,11 +44,11 @@ const datam = {
       yAxisID: 'y',
     },
     {
-      label: 'Data 2',
+      label: 'Data 1',
       data: null,
-      borderColor: Utils.CHART_COLORS.blue,
-      backgroundColor: Utils.CHART_COLORS.blue,
-      yAxisID: 'y1',
+      borderColor: Utils.CHART_COLORS.red,
+      backgroundColor: Utils.CHART_COLORS.red,
+      yAxisID: 'y',
     }
   ]
 };
@@ -82,7 +87,31 @@ const configm = {
     }
   },
 };
+//bar chart config
 
+const datab = {
+  labels: null,
+  datasets: [{
+    label: 'My First Dataset',
+    data: null,
+    borderColor: Utils.CHART_COLORS.red,
+    backgroundColor: Utils.CHART_COLORS.red,
+    borderWidth: 1
+
+
+}]
+};
+const configb = {
+  type: 'bar',
+  data: datab,
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  },
+};
 
 //build chart
 const mychart = document.getElementById("mychart");
@@ -91,19 +120,63 @@ chart.data.datasets.pop();
 chart.update();
 const typeOfGraph = localStorage.getItem("typeGraph")
 if (typeOfGraph == "line"){
-  getline();
+  getsingle();
 }
-// else if (typeOfGraph == "multiLine"){
-//   chart.destroy();
-//   chart = new Chart(mychart, configm);
+else if (typeOfGraph == "multiLine"){
+  chart.destroy();
+  chart = new Chart(mychart, configm);
+  chart.data.datasets.pop();
+  chart.data.datasets.pop();
+  getMultiLine();
+  chart.update();
+}
+else if (typeOfGraph == "bar"){
+  chart.destroy();
+  chart = new Chart(mychart, configb);
+  chart.data.datasets.pop();
+  getsingle();
+  chart.update();
+}
+const data_amount = localStorage.getItem("data_cutoff");
+var element = document.getElementById("data_amount")
+if (element){
+  element.innerHTML = "Data displays the top " + data_amount + " data points";
 
+}
 
-// }
 // ----------------BUTTONS AND INPUTS---------------------------------------------------------------------------------------------
-  //get();
-function getline (){
+function getsingle (){
   const topic = localStorage.getItem("topicDisplay");
-  const url = new URL('http://127.0.0.1:5000/showPayload/' + topic)
+  const data_cutoff = localStorage.getItem("data_cutoff")
+  const url = new URL('http://127.0.0.1:5000/showPayload/' + topic +'/'+ data_cutoff);
+  let xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+  xhr.responseType = 'json';
+  xhr.send();
+  xhr.onload = function(){
+    let responseObj = xhr.response;
+    const resultPayload = responseObj;
+    console.log(resultPayload);
+    const dsColor = Utils.namedColor(chart.data.datasets.length);
+    const newDataset = {
+      label: topic,
+      borderColor: dsColor,
+      backgroundColor: dsColor,
+      data: resultPayload["payload"]
+    };
+    
+    const newlabels = resultPayload["label"]
+    chart.data.labels = newlabels;
+    chart.data.datasets.push(newDataset);
+
+    chart.update();
+  }
+}
+
+function getMultiLine (){
+  const topic = localStorage.getItem("topicDisplay");
+  const data_cutoff = localStorage.getItem("data_cutoff");
+  const url = new URL('http://127.0.0.1:5000/showPayload/' + topic + '/'+ data_cutoff);
   let xhr = new XMLHttpRequest();
   xhr.open('GET', url);
   xhr.responseType = 'json';
@@ -116,12 +189,37 @@ function getline (){
       label: topic,
       borderColor: dsColor,
       data: resultPayload["payload"]
-    };
+     };
     
     const newlabels = resultPayload["label"]
     chart.data.labels = newlabels;
     chart.data.datasets.push(newDataset);
     chart.options.plugins.title.text = 'Average ' + topic + ' over time';
+    chart.update();
+  }
+  const secondtopic = localStorage.getItem("topicDisplay2");
+  const urlsecondcall = new URL('http://127.0.0.1:5000/showPayload/' + secondtopic + '/'+data_cutoff)
+  let xhrv2 = new XMLHttpRequest();
+  xhrv2.open('GET', urlsecondcall);
+  xhrv2.responseType = 'json';
+  xhrv2.send();
+  xhrv2.onload = function(){
+    let responseOb = xhrv2.response;
+    const resultPayload = responseOb;
+    
+    const dsColor = Utils.namedColor(chart.data.datasets.length);
+    const newDataset = {
+      label: secondtopic,
+      borderColor: dsColor,
+      data: resultPayload["payload"]
+     };
+
+    
+    const newlabels = resultPayload["label"]
+    chart.data.labels = newlabels;
+    console.log(chart.data.datasets)
+    chart.data.datasets.push(newDataset);
+    chart.options.plugins.title.text = 'Average ' + secondtopic + ' over time';
     chart.update();
   }
 }
@@ -148,11 +246,11 @@ function getline (){
 // }
 
 //-----------------------------------------------------------------------------
-// testing  out refresh rate (need to fix settings problem first)
+//testing  out refresh rate (need to fix settings problem first)
 // function autoRefresh() {
 //   window.location = window.location.href;
 //   console.log('5min have passed')
 // }
-// setInterval(autoRefresh, 300000);
+// setInterval(autoRefresh, 30000);
 // ---------------------------------------------------------------------------------
 
