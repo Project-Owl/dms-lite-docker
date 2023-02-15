@@ -53,10 +53,10 @@
 
 </head>
 <body>
-	<div id="settings">
-		<div class="container">
-			<div class="row">
-			<div class="col-sm-12">
+<div id="settings">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6">
 				<h4 id="main-text">Settings</h4>
 				<div class="form">
 
@@ -75,6 +75,7 @@
 					<label>CHOOSE OPTIONS FOR DATA PAGE</label>
 					<br>
 					<!-- to be updated with new graphs -->
+				<div>					
 					<label for="graphtype">Choose a graph: </label>
 					<select name="graphtype" id="graphtype">
 						<option value="line">Line Graph (1 topic)</option>
@@ -91,13 +92,55 @@
 					<label>Choose data cutoff:</label>
 					<input type="number" id="datamount">
 					<br>
+					<label>Choose Duck_id to monitor</label>
+					<select class="selectduck" id="selectduck"></select>
+					<br>
+					<button id="toData">Save data</button>	
+				</div>
+				<div>
+				
 
-					<button id="toData">Save data</button>			
+					<div id="alert">
+					<span id="beautify">
+					<label>Choose a topic to set an alert:</label>
+					<select class="selecttopic" id="topic_alert"></select>
+					<br>
+					<label>Choose a min value for the alert </label>
+					<input type="number" id="min_alert">
+					<br>
+					<label>Choose a max value for the alert </label>
+					<input type="number" id="max_alert">
+					<button id="alert_bt"> Save new alerts </button>
+					<br>
+					</span>
+					</div>
+					<br>
+							
 				</div>
 			</div>
-		</div>
+
+
+			</div>
+			<div class="col-sm-6">
+				<div id="second_col">
+					<table id="infoTable" class="table table-borderless table-striped table-earning">
+						<thead>
+							<tr>
+								<th>Monitor Duck</th>
+								<th>Type of Graph</th>
+								<th>First topic displayed</th>
+								<th>Second topic displayed (only if multiline)</th>
+								<th>Data cutoff</th>
+							</tr>
+						</thead>
+						<tbody id="table_body"></tbody>
+					  </table>
+				</div>
+
+			</div>
 		</div>
 	</div>
+</div>
 	<%- include ('partials/footer') %>
 </body>
 </html>
