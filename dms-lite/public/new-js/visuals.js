@@ -88,7 +88,6 @@ const configm = {
   },
 };
 //bar chart config
-
 const datab = {
   labels: null,
   datasets: [{
@@ -97,8 +96,6 @@ const datab = {
     borderColor: Utils.CHART_COLORS.red,
     backgroundColor: Utils.CHART_COLORS.red,
     borderWidth: 1
-
-
 }]
 };
 const configb = {
@@ -112,16 +109,21 @@ const configb = {
     }
   },
 };
-
+//make the tables
+showAlerts();
+showInfo();
 //build chart
 const mychart = document.getElementById("mychart");
 var chart = new Chart(mychart, configl);
 chart.data.datasets.pop();
 chart.update();
-const typeOfGraph = localStorage.getItem("typeGraph")
-if (typeOfGraph == "line"){
-  getsingle();
-}
+
+const settings_json = localStorage.getItem("information"); 
+const settings = JSON.parse(settings_json);
+const typeOfGraph = settings[1]; 
+const data_amount = settings[4]; 
+
+if (typeOfGraph == "line"){getsingle();}
 else if (typeOfGraph == "multiLine"){
   chart.destroy();
   chart = new Chart(mychart, configm);
@@ -137,120 +139,128 @@ else if (typeOfGraph == "bar"){
   getsingle();
   chart.update();
 }
-const data_amount = localStorage.getItem("data_cutoff");
+// const data_amount = localStorage.getItem("data_cutoff");
 var element = document.getElementById("data_amount")
-if (element){
-  element.innerHTML = "Data displays the top " + data_amount + " data points";
-
+if (element){element.innerHTML = "Chart displays the top " + data_amount + " data points";
+}
+// ----------------CHARTING---------------------------------------------------------------------------------------------
+async function getsingle() {
+  const data_amount = settings[4]; 
+  const topic = settings[2]; 
+  
+  const url = new URL('http://127.0.0.1:5000/showPayload/' + topic +'/'+ data_amount);
+  // Storing response
+  const response = await fetch(url);
+  // Storing data in form of JSON 
+  var payload = await response.json();
+  const dsColor = Utils.namedColor(chart.data.datasets.length);
+  const newDataset = {
+        label: topic,
+        borderColor: dsColor,
+        backgroundColor: dsColor,
+        data: payload["payload"]
+      };
+      const newlabels = payload["label"];
+      chart.data.labels = newlabels;
+      chart.data.datasets.push(newDataset);
+      chart.update();
+  }
+async function getMultiLine (){
+  const data_amount = settings[4]; 
+  const topic = settings[2]; 
+  const secondtopic = settings[3];
+  const url = new URL('http://127.0.0.1:5000/showPayload/' + topic + '/'+ data_amount);
+  const url2 = new URL('http://127.0.0.1:5000/showPayload/' + secondtopic + '/'+ data_amount)
+  // Storing response
+  const response = await fetch(url);
+  const response2 = await fetch(url2);
+  // Storing data in form of JSON
+  const firstpayload = await response.json();
+  const secondpayload = await response2.json();
+  const data = [];
+  const first_dataset = {
+        label: topic,
+        borderColor: Utils.CHART_COLORS.red,
+        backgroundColor: Utils.CHART_COLORS.red,
+        data: firstpayload["payload"]
+      };
+  data.push(first_dataset);
+      // chart.data.datasets.push(newDataset);
+  chart.options.plugins.title.text = 'Average ' + topic+ ' and ' + secondtopic+' over time';
+  const second_dataset = {
+    label: secondtopic,
+    borderColor: Utils.CHART_COLORS.blue,
+    backgroundColor: Utils.CHART_COLORS.blue,
+    data: secondpayload["payload"] 
+  };
+  chart.data.datasets.push(first_dataset);
+  chart.data.datasets.push(second_dataset);
+  chart.data.labels = firstpayload["label"];
+  chart.update();
 }
 
-// ----------------BUTTONS AND INPUTS---------------------------------------------------------------------------------------------
-function getsingle (){
-  const topic = localStorage.getItem("topicDisplay");
-  const data_cutoff = localStorage.getItem("data_cutoff")
-  const url = new URL('http://127.0.0.1:5000/showPayload/' + topic +'/'+ data_cutoff);
-  let xhr = new XMLHttpRequest();
-  xhr.open('GET', url);
-  xhr.responseType = 'json';
-  xhr.send();
-  xhr.onload = function(){
-    let responseObj = xhr.response;
-    const resultPayload = responseObj;
-    console.log(resultPayload);
-    const dsColor = Utils.namedColor(chart.data.datasets.length);
-    const newDataset = {
-      label: topic,
-      borderColor: dsColor,
-      backgroundColor: dsColor,
-      data: resultPayload["payload"]
-    };
-    
-    const newlabels = resultPayload["label"]
-    chart.data.labels = newlabels;
-    chart.data.datasets.push(newDataset);
 
-    chart.update();
+// ----------------- ALERTS --------------------------------------------------------------------------
+async function showAlerts(){
+  const alerts = JSON.parse(localStorage.getItem("alert_information"));
+  var topic, min, max; 
+  const topic_name = Object.keys(alerts);  
+  const alert_table = document.getElementById("alert_table"); 
+  for (let i = 0; i< topic_name.length ; i++ ){
+    // var fnl = {};
+    topic = topic_name[i]; 
+    min = alerts[topic][0]; 
+    max = alerts[topic][1]; 
+    const url = new URL('http://127.0.0.1:5000/checkAlert/'+ topic + '/' +min + '/' + max );
+    var response = await fetch(url); 
+    var sig_json = await response.json(); 
+    for(var j = 0 ; j < 1; j++){
+      let row = alert_table.insertRow(); 
+      let cell = row.insertCell(); 
+      cell.innerHTML = sig_json["duckid"][j];
+      cell = row.insertCell(); 
+      cell.innerHTML = topic; 
+      cell = row.insertCell(); 
+      cell.innerHTML = sig_json["payload"][j];
+      cell = row.insertCell(); 
+      cell.innerHTML = sig_json["label"][j];
+    }
+
+  // }
+  // const alert_table = document.getElementById("alert_table"); 
+  // console.log(total);
+  // for(var i = 0; i<total.length;i++){
+  //   var row = alert_table.insertRow(-1);
+  //   const t = Object.keys(total[i]);
+  //   let cell = row.insertCell(0); 
+  //   cell.innerHTML = t; 
+  //   var items = total[i];
+  //   console.log(items)
+  //   for(var j=0; j<3; j++){
+  //     let cell_info = row.insertCell(0); 
+  //     cell_info.innerHTML = items[ref[j]];
+      
+      // console.log(j)
+    }
+    
+
   }
-}
+   
 
-function getMultiLine (){
-  const topic = localStorage.getItem("topicDisplay");
-  const data_cutoff = localStorage.getItem("data_cutoff");
-  const url = new URL('http://127.0.0.1:5000/showPayload/' + topic + '/'+ data_cutoff);
-  let xhr = new XMLHttpRequest();
-  xhr.open('GET', url);
-  xhr.responseType = 'json';
-  xhr.send();
-  xhr.onload = function(){
-    let responseObj = xhr.response;
-    const resultPayload = responseObj;
-    const dsColor = Utils.namedColor(chart.data.datasets.length);
-    const newDataset = {
-      label: topic,
-      borderColor: dsColor,
-      data: resultPayload["payload"]
-     };
-    
-    const newlabels = resultPayload["label"]
-    chart.data.labels = newlabels;
-    chart.data.datasets.push(newDataset);
-    chart.options.plugins.title.text = 'Average ' + topic + ' over time';
-    chart.update();
-  }
-  const secondtopic = localStorage.getItem("topicDisplay2");
-  const urlsecondcall = new URL('http://127.0.0.1:5000/showPayload/' + secondtopic + '/'+data_cutoff)
-  let xhrv2 = new XMLHttpRequest();
-  xhrv2.open('GET', urlsecondcall);
-  xhrv2.responseType = 'json';
-  xhrv2.send();
-  xhrv2.onload = function(){
-    let responseOb = xhrv2.response;
-    const resultPayload = responseOb;
-    
-    const dsColor = Utils.namedColor(chart.data.datasets.length);
-    const newDataset = {
-      label: secondtopic,
-      borderColor: dsColor,
-      data: resultPayload["payload"]
-     };
+async function showInfo(){
+    const duck = JSON.parse(localStorage.getItem("information"));
+    const url = new URL('http://127.0.0.1:5000/showData/'+ duck[0]); 
+    const respond = await fetch(url); 
+    const info = await respond.json(); 
+    // const topic, payload, time; 
+    const info_array = [duck[0], info["topic"], info["payload"],info["timestamp"]]; 
+    const info_table = document.getElementById("info_table"); 
+    let row = info_table.insertRow(); 
+    info_array.forEach(items => {
+      let cell = row.insertCell(-1); 
+      cell.innerHTML = items; 
+    });
+    }
+     
 
-    
-    const newlabels = resultPayload["label"]
-    chart.data.labels = newlabels;
-    console.log(chart.data.datasets)
-    chart.data.datasets.push(newDataset);
-    chart.options.plugins.title.text = 'Average ' + secondtopic + ' over time';
-    chart.update();
-  }
-}
-// ----------------------------------------------------------------------------
-
-//warning messsage for max/min data from settings
-// will be updated to just send once
-// getAlert()
-// function getAlert(){
-//   if (localStorage.getItem("topicWarning")){
-//     const topicAlert = localStorage.getItem("topicWarning");
-//     const topicMax = localStorage.getItem("TopicWarningMax")
-//   const outlier_url = new URL('http://127.0.0.1:5000/checkOutlier/' + topicAlert + '/' + topicMax + '/0')
-//   let outlierxhr = new XMLHttpRequest();
-//   outlierxhr.open('GET', outlier_url);
-//   outlierxhr.responseType = 'json';
-//   outlierxhr.send();
-//   outlierxhr.onload = function(){
-//     let responseObj = outlierxhr.response;
-//     const outdic = responseObj;
-//     alert("Topic:"+ topicAlert+" has exceeded:"+topicMax+"at \n" + outdic["label"] + "\n with: " + outdic["payload"]+"\n") 
-//   }
-//   }
-// }
-
-//-----------------------------------------------------------------------------
-//testing  out refresh rate (need to fix settings problem first)
-// function autoRefresh() {
-//   window.location = window.location.href;
-//   console.log('5min have passed')
-// }
-// setInterval(autoRefresh, 30000);
-// ---------------------------------------------------------------------------------
 
