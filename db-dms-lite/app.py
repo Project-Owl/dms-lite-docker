@@ -18,7 +18,6 @@ api.add_resource(ApiBeta, '/')
 def hello():
     return ''' API SERVER RUNNING (BETA)  '''
 
-# @app.route('/showPayload/<string:topic>', methods=['GET'])
 def getPayload(topic,data):
     payload = []
     label = []
@@ -58,7 +57,6 @@ def getPayload(topic,data):
         print(e)
 
 # #called when the page loads
-# @app.route('/getTopics', methods=['GET'])
 def getTopics():
     topiclst=[]
     try:
@@ -82,10 +80,7 @@ def getTopics():
         print(e)
 
 # #For updates and warnings: 
-# @app.route('/checkOutlier/<string:topic>/<int:maxval>/<int:minval>', methods=['GET'])
 
-# If the sensor data changes by defined amount -> send an alert.
-# pseudo: set the settings to monitor topic specific,
 def outlierWarning(topic, maxval, minval):
     payloadout, labelout, duckout, = [], [], []
     try:
@@ -122,7 +117,6 @@ def outlierWarning(topic, maxval, minval):
     except Exception as e:
         print(e)
     
-# I would like the API to return:  Last Time/Date of data and Data that was summited.
 def duckInfo(duckid):
     payload, time, topic = [], [], []
     try:
