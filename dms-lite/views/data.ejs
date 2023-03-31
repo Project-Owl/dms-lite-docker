@@ -33,25 +33,44 @@
 	<div class="container-xxl">
 	<div class="row">
 	<div class="col-sm-12 main-section">
-	<h4 id="main-text">Recent Data</h4>
+		<br> 
+	<br>
+	<div class = "row" id="tables">
+		<div id="other-info" class="col-sm-6">
+			<table id="alert_table" class="styled-table">
+				<thead>
+					<tr id="table_title">
+						<th>Duck-ID</th>
+						<th>Topic Alert</th>
+						<th>Value</th>
+						<th>Timestamp</th>
+					</tr>
+				</thead>
+				<tbody id="alert_table"></tbody>
+
+			</table>
+
+		</div>
+		<div id="other-info" class="col-sm-6">
+			<table id="info_table" class="styled-table">
+				<thead>
+					<tr id="table_title">
+						<th>Duck-ID</th>
+						<th>Topic</th>
+						<th>Data</th>
+						<th>Timestamp</th>
+					</tr>
+				</thead>
+				<tbody id="alert_table"></tbody>
+			</table>
+
+		</div>
+	</div>
 	<div id="data">
 		<span id="data_amount"></span>
-		<div id="warnings">
-			<span>
-
-			</span>
-			
-		</div>
-			<section>
-				<div class="row" style="position: relative;">
-					<div class="col-md-12">
-						<div id="chart" style="position: relative; height: 40vh; width: 100%;">
-							<canvas id="mychart" height="50" width="100" ></canvas>
-						</div>
-					</div>
-				</div>
-			</section>
+			<canvas id="mychart" height="45" width="100" ></canvas>
 	</div>
+	<div class="row">
 	<table class="table main-table">
 		<thead>
 			<th>DUCKID</th>
@@ -154,6 +173,7 @@
 
 		</tbody>
 	</table>
+	</div>
 	</div>
 	
 	</div>

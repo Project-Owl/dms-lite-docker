@@ -18,13 +18,12 @@ api.add_resource(ApiBeta, '/')
 def hello():
     return ''' API SERVER RUNNING (BETA)  '''
 
-# @app.route('/showPayload/<string:topic>', methods=['GET'])
 def getPayload(topic,data):
     payload = []
     label = []
     try:
         conn = mariadb.connect(
-        user= os.getenv('MYSQL_USER'),
+        user=os.getenv('MYSQL_USER'),
         password=os.getenv('MYSQL_PASSWORD'),
         host= os.getenv('MYSQL_HOST'),
         database=os.getenv('MYSQL_DATABASE'),
@@ -32,8 +31,12 @@ def getPayload(topic,data):
         )
         cursor = conn.cursor()
         cursor.execute(
-            '''SELECT payload, timestamp FROM clusterData
-            WHERE topic = ? LIMIT ?''', (topic,data))
+            '''SELECT payload, timestamp 
+            FROM clusterData
+            WHERE topic = ? 
+            ORDER BY timestamp DESC
+            LIMIT ?
+            ''', (topic,data))
         rows = cursor.fetchall()
         # grabs the row obj and jsonify datetime
         for info in rows:
@@ -43,6 +46,7 @@ def getPayload(topic,data):
         conn.close()
         print('got info')
         labeldate = []
+        payload,label = payload[::-1],label[::-1]
         for date in label:
             rjson = json.dumps(date, default=str)
             labeldate.append(rjson)
@@ -53,7 +57,6 @@ def getPayload(topic,data):
         print(e)
 
 # #called when the page loads
-# @app.route('/getTopics', methods=['GET'])
 def getTopics():
     topiclst=[]
     try:
@@ -69,19 +72,17 @@ def getTopics():
         '''SELECT DISTINCT topic FROM clusterData''', )
         rows = cursor.fetchall()
         for info in rows:
-            topiclst.append(info[0]) #this is a list['','','']
+            topiclst.append(info[0])
         conn.commit()
         conn.close()
-        topicdic = {"topics" : topiclst}
-        return topicdic
+        return topiclst
     except Exception as e:
         print(e)
 
 # #For updates and warnings: 
-# @app.route('/checkOutlier/<string:topic>/<int:maxval>/<int:minval>', methods=['GET'])
+
 def outlierWarning(topic, maxval, minval):
-    payloadout = []
-    labelout = []
+    payloadout, labelout, duckout, = [], [], []
     try:
         conn = mariadb.connect(
         user= os.getenv('MYSQL_USER'),
@@ -92,12 +93,17 @@ def outlierWarning(topic, maxval, minval):
         )
         cursor = conn.cursor()
         cursor.execute(
-        '''SELECT payload, timestamp FROM clusterData WHERE topic = ? AND ((payload > ?) OR (payload < ?)) 
-            ORDER BY payload ASC''',(topic,maxval,minval))
+        '''SELECT payload, timestamp, duck_id
+            FROM clusterData 
+            WHERE topic = ? AND ((payload > ?) OR (payload < ?)) 
+            LIMIT 1
+            ''',(topic,maxval,minval))
         rows = cursor.fetchall()
         for info in rows:
             payloadout.append((info[0]))
             labelout.append(info[1])
+            duckout.append(info[2])
+
         conn.commit()
         conn.close()
         print('got info')
@@ -106,26 +112,87 @@ def outlierWarning(topic, maxval, minval):
             rjson = json.dumps(date, default=str)
             labeldate.append(rjson)
         #add it to a dictionary and return
-        result = {"payload" : payloadout, "label" :labeldate}
+        result = {"payload" : payloadout, "label" :labeldate, "duckid":duckout}
         return result
     except Exception as e:
         print(e)
+    
+def duckInfo(duckid):
+    payload, time, topic = [], [], []
+    try:
+        conn = mariadb.connect(
+        user= os.getenv('MYSQL_USER'),
+        password= os.getenv('MYSQL_PASSWORD'),
+        host=os.getenv('MYSQL_HOST'),
+        database=os.getenv('MYSQL_DATABASE'),
+        port=3306
+        )
+        cursor = conn.cursor()
+        cursor.execute(
+        '''SELECT topic, payload, timestamp
+            FROM clusterData 
+            WHERE duck_id = ?
+            LIMIT 1
+            ''', (duckid,))
+        rows = cursor.fetchall()
 
+        for info in rows: 
+            topic.append(info[0])
+            payload.append(info[1])
+            time.append(info[2])
+        conn.commit()
+        conn.close()
+        timedate = []
+        for t in time: 
+            timedate.append(json.dumps(t, default=str))
+        return {"topic":topic, "payload":payload, "timestamp":timedate}
+    except Exception as e:
+        print(e)
 
+def getDucks():        
+    ducklst=[]
+    try:
+        conn = mariadb.connect(
+        user= os.getenv('MYSQL_USER'),
+        password= os.getenv('MYSQL_PASSWORD'),
+        host=os.getenv('MYSQL_HOST'),
+        database=os.getenv('MYSQL_DATABASE'),
+        port=3306
+        )
+        cursor = conn.cursor()
+        cursor.execute(
+        '''SELECT DISTINCT duck_id FROM clusterData''', )
+        rows = cursor.fetchall()
+        for info in rows:
+            ducklst.append(info[0])
+        conn.commit()
+        conn.close()
+        return ducklst
+    except Exception as e:
+        print(e)
+        
+        
 class show_Payload(Resource):
     def get(self, topic, data):
         return getPayload(topic, data), 200
 class get_Topics(Resource):
     def get(self):
         return getTopics(), 200
-class checkOutlier(Resource):
+class checkAlert(Resource):
     def get(self, topic, maxval, minval):
         return outlierWarning(topic, maxval, minval), 200
+class showData(Resource):
+    def get(self, duckid): 
+        return duckInfo(duckid), 200
+class get_Ducks(Resource): 
+    def get(self): 
+        return getDucks(), 200
 
 api.add_resource(show_Payload, "/showPayload/<string:topic>/<int:data>")
 api.add_resource(get_Topics, "/getTopics")
-api.add_resource(checkOutlier, "/checkOutlier/<string:topic>/<int:maxval>/<int:minval>")
-
+api.add_resource(checkAlert, "/checkAlert/<string:topic>/<int:maxval>/<int:minval>")
+api.add_resource(showData,"/showData/<string:duckid>")
+api.add_resource(get_Ducks,"/getDucks")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
