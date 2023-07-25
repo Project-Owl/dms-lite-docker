@@ -21,7 +21,7 @@ services:
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
       MYSQL_HOST: "${MYSQL_HOST}"
   mariadb:
-    image: lscr.io/linuxserver/mariadb:10.5.13-r0-ls43
+    image: docker.io/linuxserver/mariadb:10.5.13-r0-ls43
     hostname: mariadb
     restart: "always"
     ports:
