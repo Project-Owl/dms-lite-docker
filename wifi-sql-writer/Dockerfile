@@ -2,6 +2,8 @@ FROM python:3.10-slim-bullseye
 
 RUN apt update && apt upgrade -y && apt install -y gcc libmariadb-dev libmariadb3
 
+WORKDIR /app
+
 # Copies files from the host into the container
 COPY wifi_sqlwriter.py /
 

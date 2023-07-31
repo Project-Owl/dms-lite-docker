@@ -1,5 +1,7 @@
 FROM node:lts-slim
 
+WORKDIR /app
+
 COPY . .
 
 # Installs the DMS Lite packages
