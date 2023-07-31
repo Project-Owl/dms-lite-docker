@@ -47,7 +47,7 @@ In the root folder, there are three subfolders that each contain code to build a
 
 3. Setup environment variable file
 - Make a copy of the file named `.env.example` and save it as `.env`.
-- Modify the new `.env` and enter the information for the `MYSQL` variables. These can be any values you would like as they are applied to the MariaDB instance. These variables are copied to all of the container images. For the `MYSQL_HOST` variable, you will input `mariadb`. This matches the name of the container for the Maria database defined in `docker-compose-base.yml`.
+- Modify the new `.env` and enter the information for the `MYSQL` variables. These can be any values you would like as they are applied to the MariaDB instance. These variables are copied to all of the container images. For the two `PASSWORD` fields, make sure these values are at least 6 characters in length. For the `MYSQL_HOST` variable, you will input `mariadb`. This matches the name of the container for the Maria database defined in `docker-compose-base.yml`.
 
 4. If you are planning to run the `serial` version, you will also need to modify `docker-compose-serial.yml` with the correct USB mapping:
 
