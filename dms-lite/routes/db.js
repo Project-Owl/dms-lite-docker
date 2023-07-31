@@ -21,7 +21,7 @@ async function testDbConnection() {
 		const createTable = await conn.query("CREATE TABLE IF NOT EXISTS clusterData (timestamp DATETIME, duck_id TEXT, topic TEXT, message_id TEXT, payload TEXT, path TEXT, hops INT, duck_type INT)");
 		const createCommandsTable = await conn.query("CREATE TABLE IF NOT EXISTS clusterCommands (timestamp TEXT, topic TEXT, payload TEXT)");
 		console.log("Checked if table exists");
-		const query = await conn.query("INSERT INTO clusterData(timestamp, duck_Id, topic, message_id, payload, path, hops, duck_type) values ('2021-11-14 00:00:00', 'asdf', 'asdf', 'asdf', 'asdf', 'asdf', 1, 1);");
+		// const query = await conn.query("INSERT INTO clusterData(timestamp, duck_Id, topic, message_id, payload, path, hops, duck_type) values ('2021-11-14 00:00:00', 'asdf', 'asdf', 'asdf', 'asdf', 'asdf', 1, 1);");
 	} catch (err) {
 		throw err;
 	} finally {
