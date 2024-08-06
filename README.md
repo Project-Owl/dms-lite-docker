@@ -1,21 +1,21 @@
 ![Imgur](https://i.imgur.com/XLb61lc.png)
 
-[![Slack](https://img.shields.io/badge/Join-Slack-blue?logo=slack&style=flat-square)](https://www.project-owl.com/slack)  ![GitHub](https://img.shields.io/github/license/project-owl/dms-lite-docker?style=flat-square) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/project-owl/dms-lite-docker?logo=github&style=flat-square)
+<a href="https://discord.com/invite/Cbgbzq353z"><img src="https://img.shields.io/badge/Join-Discord-aa80ff" alt="Discord"></a> ![GitHub](https://img.shields.io/github/license/project-owl/dms-lite-docker?style=flat-square) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/project-owl/dms-lite-docker?logo=github&style=flat-square)
 
 
 ![Imgur](https://i.imgur.com/3zInWHg.jpg)
 
 
 ## About
-DMS LITE is a lightweight version of the OWL **DMS** that runs in the cloud. The DMS Lite is built to run on a local device if internet connectivity is not available. The DMS (Data Managment System) is built to collect data from the [ClusterDuck Protocol](https://github.com/Call-for-Code/ClusterDuck-Protocol) and provide simple data management, analytics, and network activity.
+DMS LITE is a lightweight version of the OWL **DMS** that runs in the cloud. The DMS Lite is built to run on a local device if internet connectivity is not available. The DMS (Data Managment System) is built to collect data from the [ClusterDuck Protocol](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol) and provide simple data management, analytics, and network activity.
 
 ## How it Works
 There are two different ways to get the data from your ClusterDuck network into the DMS locally: using a USB Serial connection or WiFi.
 
-- **Serial Connection (Currently only for Raspberry Pi):** Using the serial connection, the Raspberry Pi or other device reads the incoming messages from the serial monitor by a wired connection from the [modifed PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample) and writes the data into the database.
-- **WiFi Connection** If you use the WiFi option your [modified PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi) will publish all its data to an MQTT broker that runs on your local device.
+- **Serial Connection (Currently only for Raspberry Pi):** Using the serial connection, the Raspberry Pi or other device reads the incoming messages from the serial monitor by a wired connection from the [modifed PapaDuck](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-Serial-Example) and writes the data into the database.
+- **WiFi Connection** If you use the WiFi option your [modified PapaDuck](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-WiFi-Example) will publish all its data to an MQTT broker that runs on your local device.
 
-The PapaDucks are running [a different firmware](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples) than the regular ClusterDuck Protocol PapaDuck example.
+The PapaDucks are running [a different firmware](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples) than the regular ClusterDuck Protocol PapaDuck example.
 
 
 ![Imgur](https://i.imgur.com/B5NbR0k.jpg)
@@ -27,7 +27,7 @@ The PapaDucks are running [a different firmware](https://github.com/Call-for-Cod
 - **Docker Compose** We use Docker Compose to handle building and running each container in this solution together, so you
 will need to install Docker Compose for your operating system.
 
--  **ClusterDuck Protocol** Install the CDP Library onto your computer by following these instructions:  [CDP installation](https://github.com/Call-for-Code/ClusterDuck-Protocol/wiki/getting-started). _you will need a WiFi or Serial PapaDuck as well as a DuckLink device to test the DMS Lite._
+-  **ClusterDuck Protocol** Install the CDP Library onto your computer by following these instructions:  [CDP installation](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/wiki/getting-started). _you will need a WiFi or Serial PapaDuck as well as a DuckLink device to test the DMS Lite._
 
 - **RaspAp - Only for Local Raspberry Pi Solution** If you don't have a local network to connect your WiFi PapaDuck to you can turn your Raspberry Pi into an access point by installing [RaspAp](https://raspap.com/#quick). *Note: Install RaspAp after successfully installing the Docker image if your Pi uses a WiFi connection*
 
@@ -59,11 +59,11 @@ In the root folder, there are three subfolders that each contain code to build a
 5. Run and build the Docker Images
    - **Serial Connection** run the following command
  `docker compose -f docker-compose-base.yml -f docker-compose-serial.yml up -d`
- *Note: Your [Serial-Papa](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample) needs to be connected to a USB port to build successfully*
+ *Note: Your [Serial-Papa](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-Serial-Example) needs to be connected to a USB port to build successfully*
 
     - **WiFi Connection** run the following command
  `docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml up -d`
- *Note: Follow these instructions to connect to your [WiFi-PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/tree/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi) to your local MQTT Broker*
+ *Note: Follow these instructions to connect to your [WiFi-PapaDuck](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-WiFi-Example) to your local MQTT Broker*
 
 6. After you successfully installed and started your Docker images, you can see the DMS Lite by going to `localhost:3000` inside of a browser.
 
@@ -75,10 +75,10 @@ In the root folder, there are three subfolders that each contain code to build a
 ## Setup your network
 
 ### Setup Serial PapaDuck
-Setup you [Serial PapaDuck](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/Serial-PaPiDuckExample/Serial-PaPiDuckExample.ino) by downloading the source code and flashing your development board. After you have successfully setup your Duck, connect it to your Local machine by USB cable.
+Setup you [Serial PapaDuck](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-Serial-Example) by downloading the source code and flashing your development board. After you have successfully setup your Duck, connect it to your Local machine by USB cable.
 
 ### Setup WiFi PapaDuck
-If you are using the WiFi-PapaDuck.ino to connect to your local network you need to enter the IP address of your local MQTT network **(the machine Docker is running on and not the IP of the container)** and your WiFi Network name and Password to the [Papa's .ino file](https://github.com/Call-for-Code/ClusterDuck-Protocol/blob/master/examples/6.PaPi-DMS-Lite-Examples/PapiDuckExample-wifi/PapiDuckExample-wifi.ino). If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
+If you are using the WiFi-PapaDuck.ino to connect to your local network you need to enter the IP address of your local MQTT network **(the machine Docker is running on and not the IP of the container)** and your WiFi Network name and Password to the [Papa's .ino file](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-WiFi-Example). If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
 
 ```c
 const char* user = "raspi-webgui"; // change to your home WiFi SSID if not using RaspAp
