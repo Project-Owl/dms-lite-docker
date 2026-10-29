@@ -104,10 +104,10 @@ The device test owns a temporary pseudo-terminal and verifies permission denial
 without the required group, then actual non-root reads/writes with it. It binds
 the same PTY inode because Docker's separate devpts namespace cannot reopen a
 recreated PTY device node. Physical USB/firmware validation remains separate.
-The migration rehearsal creates all storage and credentials in a generated `/tmp`
-tree, verifies byte/ownership preservation of the original, restores Unicode,
-NULLs and duplicate commands, and tests refusal, failed export, retained partial import, SIGINT/SIGTERM cleanup
-and pre-write rollback.
+The migration rehearsal creates all storage and credentials in a generated
+temporary tree (`TMPDIR` can place it on disk), verifies byte/ownership preservation
+of the original, restores Unicode, NULLs and duplicate commands, and tests refusal,
+failed export, retained partial import, SIGINT/SIGTERM cleanup and pre-write rollback.
 
 The workflow tests natively on `ubuntu-24.04` (amd64) and `ubuntu-24.04-arm`
 (arm64), using [GitHub's runner labels](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
@@ -138,3 +138,25 @@ messages and devices. Duck status derives from packet timestamps, never a claime
 radio or broker connection. Message search filters the loaded snapshot rather than
 the entire database. The `/data` API/page and serial command endpoints retain their
 existing paths. All dates are UTC and untrusted packet text stays escaped.
+
+## Native arm64 validation
+
+Application commit `96ba400` was tested natively on a Raspberry Pi on
+2026-10-29: all three arm64 images built, 27 Node tests, 24 desktop/narrow browser
+checks, and 34 Python/container tests passed. Native Python 3.14 adapter/framing
+checks and the runtime probes also passed. The host Python suite used Python 3.13;
+the application images used their pinned runtimes. Isolated MQTT/database recovery
+and legacy migration, failure, interruption and rollback rehearsals passed.
+This was independent of a GitHub Actions run. Traffic was synthetic; no physical
+PapaDuck was attached.
+
+On a Pi with RAM-backed `/tmp`, place generated migration fixtures on disk:
+
+```sh
+mkdir -p .scratch/test-tmp
+TMPDIR="$PWD/.scratch/test-tmp" python3 tests/migration_smoke.py
+```
+
+The rehearsal still removes only its uniquely created test directory. A failure
+before fault-injection workspace creation now reports the helper's safe error,
+rather than an uninformative missing-directory exception.

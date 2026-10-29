@@ -1,4 +1,4 @@
-"""Real copy-only legacy migration rehearsal; all paths are generated under /tmp."""
+"""Real copy-only legacy migration rehearsal; all paths are generated under the configured temporary directory."""
 import hashlib
 import json
 import os
@@ -102,9 +102,11 @@ os.execv("""+repr(real_docker)+""",["""+repr(real_docker)+""",*args])
         for fault in ('export','partial-import'):
             failed_target=root/(fault+'-target');failed_backups=root/(fault+'-backups')
             baseline=set(runner.run(['ps','-aq','--filter','label='+LABEL]).decode().split())
-            invoke(source,failed_target,failed_backups,envfile,expect=1,extra_env={'PATH':str(wrapper_dir)+os.pathsep+os.environ['PATH'],'DMS_FIXTURE_FAULT':fault})
+            failed_result=invoke(source,failed_target,failed_backups,envfile,expect=1,extra_env={'PATH':str(wrapper_dir)+os.pathsep+os.environ['PATH'],'DMS_FIXTURE_FAULT':fault})
             assert tree_hash(runner,source)==before,'Failed migration modified original'
-            workspace=next(failed_backups.glob('migration-*'))
+            workspaces=list(failed_backups.glob('migration-*'))
+            assert workspaces, fault+' failed before creating a workspace: '+failed_result.stderr+failed_result.stdout
+            workspace=workspaces[0]
             failed_summary=json.loads((workspace/'summary.json').read_text())
             assert failed_summary['status']=='failed'
             assert failed_summary['phase']==('export_database' if fault=='export' else 'import_database')
@@ -151,8 +153,8 @@ os.execv("""+repr(real_docker)+""",["""+repr(real_docker)+""",*args])
         print('PASS: original preserved, verified logical restore, refusal paths and pre-resume rollback',flush=True)
     finally:
         runner.cleanup()
-        # Only remove this generated test tree, via an image utility that can read DB-owned files.
-        assert root.parent==Path('/tmp') and root.name.startswith('dms-migration-test-')
+        # Only remove this generated test tree under the configured temporary parent, via an image utility that can read DB-owned files.
+        assert root.parent==Path(tempfile.gettempdir()).resolve() and root.name.startswith('dms-migration-test-')
         _,owned=runner.owned_args('clean-fixture')
         runner.run(['run','--rm',*owned,'--user','0','--entrypoint','python','--mount',mount_spec(root,'/fixture'),PYTHON_IMAGE,'-c',
             "import pathlib,shutil; [(shutil.rmtree(p) if p.is_dir() and not p.is_symlink() else p.unlink()) for p in pathlib.Path('/fixture').iterdir()]"])
