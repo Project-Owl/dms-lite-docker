@@ -1,37 +1,9 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <%- include ('partials/head') %>
-    <%- include ('partials/nav') %>
-  </head>
-  <body>
-    <div class="row">
-      <div class="col-sm-4 main-box">
-        <div class="col-12 main-box-detail">
-        	<a href="/data">
-		    	<img src="/images/data.png" alt="data" class="icon-main">
-        		<h5>DATA</h5>
-        	</a>
-        </div>
-      </div>
-      <div class="col-sm-4 main-box">
-        <div class="col-12 main-box-detail">
-        	<a href="/ducks">
-		    	<img src="/images/duck.png" alt="data" class="icon-main">
-        		<h5>DUCKS</h5>
-        	</a>
-        </div>
-      </div>
-      <div class="col-sm-4 main-box">
-        <div class="col-12 main-box-detail">
-        	<a href="/settings">
-		    	<img src="/images/settings.png" alt="data" class="icon-main">
-        		<h5>SETTINGS</h5>
-        	</a>
-        </div>
-      </div>
-
-    </div>
-    <%- include ('partials/footer') %>
-  </body>
-</html>
+<!doctype html><html lang="en"><head><%- include('partials/head') %><script src="/scripts/chart.js" defer></script><script src="/new-js/visuals.js" type="module"></script></head><body><%- include('partials/nav') %>
+<main id="main" class="main-content" tabindex="-1"><%- include('partials/page-header',{eyebrow:'Network overview',heading:'Your network, at a glance.',description:'A clear view of your Ducks and the data they’re sending.',refreshPath:'/'}) %>
+<% if (snapshot.latest) { %><div class="status-strip"><span class="status-dot"></span><strong>Latest message</strong><span><%= deviceState(snapshot.latest,staleAfterSeconds,viewNow).ageText %></span><span class="ml-auto text-xs text-muted"><%= commandsEnabled?'USB serial':'MQTT' %> · Snapshot</span></div><% } %>
+<% if (snapshot.isEmpty) { %><%- include('partials/empty') %><% } else { %>
+<div class="metrics"><article class="metric"><h2 class="metric-title">Ducks seen recently <%- include('partials/icon',{name:'ducks'}) %></h2><p class="metric-value"><span data-metric="devices"><%= snapshot.recentCount ?? '—' %></span><% if(snapshot.deviceCount!==null){ %><small>/ <%= snapshot.deviceCount %></small><% } %></p><p class="metric-caption"><% if(snapshot.errors.devices){ %>Device snapshot unavailable<% }else{ %>Within <%= staleAfterSeconds %> seconds · Based on last messages<% } %></p></article><article class="metric"><h2 class="metric-title">Loaded messages <%- include('partials/icon',{name:'messages'}) %></h2><p class="metric-value" data-metric="messages"><%= snapshot.loadedCount ?? '—' %></p><p class="metric-caption"><%= snapshot.errors.messages?'Message snapshot unavailable':'Latest snapshot · Up to 100 messages' %></p></article><article class="metric"><h2 class="metric-title">Topics <%- include('partials/icon',{name:'wave'}) %></h2><p class="metric-value"><%= snapshot.topicCount ?? '—' %></p><p class="metric-caption"><%= snapshot.errors.topics?'Topic list unavailable':'Distinct topics in stored messages' %></p></article></div>
+<div class="overview-grid"><%- include('partials/chart') %><section class="panel"><div class="panel-heading"><div><h2>Ducks in your network</h2><p>Based on each device’s latest message</p></div><a class="text-link" href="/ducks" aria-label="View all Ducks"><%- include('partials/icon',{name:'arrow'}) %></a></div>
+<% if(snapshot.errors.devices){ %><div class="panel-body"><p>Device messages are unavailable. <a class="text-link" href="/">Retry snapshot</a></p></div><% }else if(!snapshot.devices.length){ %><p class="panel-body text-muted">No device messages yet.</p><% }else{ for(const duck of snapshot.devices.slice(0,4)){const status=deviceState(duck.timestamp,staleAfterSeconds,viewNow); %><a href="/ducks" class="duck-row"><span class="duck-symbol"><%- include('partials/icon',{name:'ducks'}) %></span><div class="duck-label"><strong><%= duck.duck_id %></strong><p><span class="status-dot <%= status.recent?'':'stale' %>"></span> <%= status.recent?'Seen recently':'Not seen recently' %></p><p><%= status.ageText %></p></div></a><% }} %><div class="panel-foot">Freshness is based on messages, not a live radio connection.</div></section></div>
+<%- include('partials/messages',{messages:snapshot.messages.slice(0,5),loadedCount:snapshot.loadedCount,overview:true,detailedView:false,unavailable:snapshot.errors.messages}) %><% } %>
+</main><%- include('partials/footer') %></body></html>

@@ -1,30 +1,36 @@
----
-# This compose file is used for wifi-connected setups
-# It is meant to be used in tandem with the Base Compose template
-version: "3"
 services:
   MQTT-Server:
-    container_name: mqtt_broker
-    hostname: mosquitto
-    image: eclipse-mosquitto:2.0.10
-    restart: "always"
+    image: eclipse-mosquitto:2.1.2-alpine@sha256:860aeb5d63ce509508f6dcfb2bc8a1c1dd2bc60555b562b45ce90e52d8dabb0f
+    restart: unless-stopped
     ports:
-      - "1883:1883"
+      - "${MQTT_BIND_ADDRESS:-0.0.0.0}:${MQTT_HOST_PORT:-1883}:1883"
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    networks:
+      default:
+        aliases:
+          - mosquitto
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "127.0.0.1", "-t", "$$SYS/dms-health", "-n"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
   wifiwriter:
-    depends_on:
-      - "MQTT-Server"
-      - "mariadb"
     image: dms-lite-wifiwriter
-    restart: "always"
     build:
-      dockerfile: Dockerfile
       context: ./wifi-sql-writer
-    links:
-      - mariadb
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+      MQTT-Server:
+        condition: service_healthy
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_HOST: "${MYSQL_HOST}"
+      MYSQL_HOST: "${MYSQL_HOST:-mariadb}"
+      MQTT_HOST: "${MQTT_HOST:-mosquitto}"
+      MQTT_PORT: "${MQTT_PORT:-1883}"
+      MQTT_TOPIC: "${MQTT_TOPIC:-#}"
+      MAX_PACKET_BYTES: "${MAX_PACKET_BYTES:-65536}"

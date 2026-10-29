@@ -1,23 +1,24 @@
----
-# This compose file is used for serial communications to USB-connected devices
-# It is meant to be used in tandem with the Base Compose template
-version: "3"
 services:
+  web:
+    environment:
+      COMMANDS_ENABLED: "true"
   serialwriter:
-    depends_on:
-      - mariadb
-    restart: "always"
     image: dms-lite-serialwriter
     build:
-      dockerfile: Dockerfile
       context: ./serial-sql-writer
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    group_add:
+      - "${SERIAL_GID:-20}"
     devices:
-      - "/dev/ttyUSB0:/dev/ttyUSB0"
-    privileged: true
-    links:
-      - mariadb
+      - "${SERIAL_HOST_DEVICE:-/dev/ttyUSB0}:/dev/ttyUSB0"
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_HOST: "${MYSQL_HOST}"
+      MYSQL_HOST: "${MYSQL_HOST:-mariadb}"
+      SERIAL_DEVICE: /dev/ttyUSB0
+      SERIAL_BAUD: "${SERIAL_BAUD:-115200}"
+      MAX_PACKET_BYTES: "${MAX_PACKET_BYTES:-65536}"

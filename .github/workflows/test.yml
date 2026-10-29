@@ -1,0 +1,45 @@
+name: Test
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - run: npm ci
+        working-directory: dms-lite
+      - run: npm run build:css
+        working-directory: dms-lite
+      - run: npm test
+        working-directory: dms-lite
+        env:
+          TZ: America/Chicago
+      - run: npx playwright install --with-deps chromium
+        working-directory: dms-lite
+      - run: npx playwright test
+        working-directory: dms-lite
+      - run: python -m pip install pyserial==3.5
+      - run: python -m unittest discover -s tests -v
+      - run: docker build -t dms-lite-smoke-web dms-lite
+      - run: docker build -t dms-lite-smoke-wifiwriter wifi-sql-writer
+      - run: docker build -t dms-lite-smoke-serialwriter serial-sql-writer
+      - run: python tests/image_smoke.py
+      - run: python -m unittest discover -s tests -p test_container_serial.py -v
+        env:
+          DMS_IMAGE_TESTS: '1'
+      - run: python tests/smoke.py
+      - run: python tests/migration_smoke.py

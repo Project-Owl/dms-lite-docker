@@ -4,25 +4,24 @@
   "description": "Lite version of Project Owl Data Management System",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "node --test test/*.test.js",
+    "build:css": "tailwindcss -i styles/app.css -o public/stylesheets/app.css --minify",
+    "build:css:watch": "tailwindcss -i styles/app.css -o public/stylesheets/app.css --watch",
+    "prestart": "npm run build:css"
   },
   "dependencies": {
-    "bootstrap": "^4.6.1",
-    "cookie-parser": "^1.4.6",
-    "debug": "~2.6.9",
-    "dotenv": "^16.0.1",
-    "ejs": "~3.1.6",
-    "express": "^4.16.4",
-    "http-errors": "~1.6.3",
-    "jquery": "^3.5.1",
-    "leaflet": "^1.8.0",
-    "mariadb": "^2.5.5",
-    "morgan": "~1.9.1",
-    "tablefilter": "^0.7.2",
-    "chart.js":"3.9.1"
+    "chart.js": "4.6.1",
+    "cookie-parser": "1.4.7",
+    "dotenv": "18.0.9",
+    "ejs": "3.1.10",
+    "express": "5.3.0",
+    "leaflet": "1.9.4",
+    "mariadb": "3.5.4"
   },
   "devDependencies": {
-    "font-awesome": "^4.7.0",
-    "nodemon": "^2.0.4"
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
   }
 }

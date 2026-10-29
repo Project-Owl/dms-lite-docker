@@ -1,9 +1,14 @@
-<nav class="navbar nav-main ">
-    <a class="navbar-brand" href="/"><img src="/images/DMS-LOGO.png" alt="logo" class="logo-nav"></a>
-    <div class="topnav">
-        <a  href="/">Home</a>
-        <a href="/data">Data</a>
-        <a href="/ducks">Ducks</a>
-        <a href="/settings">Settings</a>
-    </div>
-</nav>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="app-shell">
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="DMS Lite overview"><span class="brand-mark" aria-hidden="true">◈</span><span class="brand-name">DMS <span class="font-normal">Lite</span><small>CLUSTERDUCK PROTOCOL</small></span></a>
+  <p class="nav-caption">WORKSPACE</p>
+  <nav class="main-nav" aria-label="Main navigation">
+    <% for (const [href,label,key] of [['/','Overview','overview'],['/data','Messages','messages'],['/ducks','Ducks','ducks'],['/settings','Settings','settings']]) { %>
+    <a class="nav-link" href="<%= href %>" <%- activePage===key ? 'aria-current="page"' : '' %>><%- include('icon',{name:key}) %><span><%= label %></span></a>
+    <% } %>
+  </nav>
+  <div class="sidebar-bottom"><div class="ingestion"><%- include('icon',{name:'wave'}) %><div><strong class="text-ink"><%= commandsEnabled?'Serial':'MQTT' %> ingestion</strong><p class="mt-1">Configured on this host</p></div></div><p class="mt-7">Open firmware. Your data.</p><a class="text-link mt-4 text-xs" href="/setup">Setup guide <%- include('icon',{name:'arrow'}) %></a></div>
+</aside>
+<div class="workspace">
+<header class="topbar"><div><strong class="font-medium">My workspace</strong><span class="mx-3 text-muted" aria-hidden="true">/</span><span class="text-muted"><%= pageTitle %></span></div><span class="flex items-center gap-2 text-muted"><%- include('icon',{name:'lock'}) %><span>Stored locally</span></span></header>

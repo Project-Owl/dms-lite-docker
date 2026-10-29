@@ -1,0 +1,2 @@
+const {defineConfig}=require('@playwright/test');
+module.exports=defineConfig({testDir:'./test',testMatch:'browser.spec.js',workers:1,reporter:'list',outputDir:'../.scratch/modernization/browser-results',use:{baseURL:'http://127.0.0.1:3107',timezoneId:'America/Chicago'},webServer:{command:'npm run build:css && node test/fixture-server.js',url:'http://127.0.0.1:3107/health/live',reuseExistingServer:false},projects:[{name:'desktop',use:{viewport:{width:1280,height:900}}},{name:'narrow',use:{viewport:{width:390,height:844}}}]});
