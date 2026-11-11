@@ -1,5 +1,8 @@
 # DMS Lite
 
+[![License](https://img.shields.io/github/license/project-owl/dms-lite-docker?style=flat-square)](LICENSE)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/project-owl/dms-lite-docker?logo=github&style=flat-square)
+
 DMS Lite is an open source, local tool for collecting and viewing data from
 [ClusterDuck Protocol](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol)
 firmware without a cloud subscription. Connect a PapaDuck over MQTT or USB serial,
@@ -7,30 +10,57 @@ then use the browser interface to inspect messages, device activity, charts, and
 browser alert thresholds. Core pages and assets work without internet access;
 optional Google Maps/OpenStreetMap views require connectivity.
 
+## How it works
+
+A PapaDuck receives messages from your ClusterDuck network and forwards them to
+DMS Lite using one of two ingestion modes:
+
+- **USB serial:** connect the PapaDuck to the Docker host over USB. The serial
+  writer reads newline-delimited JSON and stores the messages in MariaDB.
+- **WiFi / MQTT:** the PapaDuck publishes JSON to the local MQTT broker. The WiFi
+  writer subscribes to the broker and stores the messages in the same database.
+
+Both modes use the same browser interface to display stored messages, Ducks, and
+numeric readings. Open the interface on the Docker host or another device on its
+local network.
+
+Use PapaDuck firmware that supports your chosen ingestion mode and the packet
+format below. The [USB serial example](https://github.com/ClusterDuck-Protocol/QuackPacks/tree/main/Custom-Papa/PapiDuck-DMS-Lite-Serial-Example)
+and [WiFi example](https://github.com/ClusterDuck-Protocol/QuackPacks/tree/main/Custom-Papa/PapiDuck-DMS-Lite-WiFi-Example)
+are firmware references; check their board settings and CDP version before use.
+
 The stack contains an Express/EJS web application, MariaDB, and a Python ingestion
 adapter. WiFi mode also starts a Mosquitto broker. Express serves all page and
 analytics requests on port 3000.
 
+**Offline use:** download/build the container images and dependencies before
+deployment, or transfer them from a connected machine. Once installed, core pages,
+styles, scripts, and icons are served locally; fonts use the browser's installed
+font stack. Internet access is needed for the optional online map views.
+
 ## Requirements
 
-- A 64-bit Linux container host: amd64 or arm64.
-- Docker Engine and Docker Compose 2.24.4 or newer.
+- Docker running 64-bit Linux containers on amd64 or arm64.
+- Docker Engine with Docker Compose 2.24.4 or newer.
 - A PapaDuck running the compatible MQTT or serial DMS Lite firmware.
-- For USB serial: a native Linux host with an accessible serial device. Docker
-  Desktop USB passthrough on macOS/Windows is platform-specific and is not verified.
+- For USB serial: a native Linux host with access to the serial device, such as a
+  64-bit Raspberry Pi. Set the device path and permissions as described below.
+  USB passthrough on macOS/Windows depends on the container runtime and requires
+  separate host configuration; the native Linux instructions do not establish
+  support for every desktop runtime.
 
-See the firmware project's
-[custom Papa examples](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples)
-for the DMS Lite variants. Ingestion expects newline-delimited UTF-8 JSON over
-serial at 115200 baud, or JSON MQTT messages, with these fields:
+### Packet format
+
+Ingestion expects newline-delimited UTF-8 JSON over serial, or JSON MQTT messages,
+with these fields. The default serial rate is 115200 baud:
 
 ```json
 {"DeviceID":"DUCK001","topic":"sensor/temp","MessageID":"MSG001","Payload":"-2.5","path":"A,B","hops":2,"duckType":1}
 ```
 
 Identifiers/topics are nonempty strings, payload/path are strings, and hops/type
-are nonnegative integers. Additional fields are accepted. Malformed messages are
-logged and skipped; subsequent messages continue to be processed.
+are integers from 0 to 2147483647. Additional fields are accepted. Malformed
+messages are logged and skipped; subsequent messages continue to be processed.
 
 ## Start
 
@@ -39,10 +69,12 @@ uses official MariaDB 11.4 and a separate `data-mariadb/` directory. Follow the
 [database migration guide](docs/database-migration.md) to preserve legacy `data/`.
 There is no automatic import. Retain your existing credentials.
 
-For a fresh installation, clone the repository and create your local configuration:
+For a fresh installation, clone the modernization branch and create your local
+configuration. These instructions describe `modern-update`, which is separate
+from the legacy default `main` while modernization is under review:
 
 ```sh
-git clone https://github.com/Project-Owl/dms-lite-docker.git
+git clone --branch modern-update https://github.com/Project-Owl/dms-lite-docker.git
 cd dms-lite-docker
 cp .env.example .env
 ```
@@ -50,21 +82,30 @@ cp .env.example .env
 Set `MYSQL_ROOT_PASSWORD` and `MYSQL_PASSWORD` in `.env`. Choose your database/user
 names before the first start. Keep `MYSQL_HOST=mariadb` for the bundled database.
 
+**For USB serial on Linux:** set `SERIAL_HOST_DEVICE` in `.env` to the PapaDuck's
+device path. Set `SERIAL_GID` to the numeric group owning that device; for example,
+run `stat -c %g /dev/ttyUSB0` for a device at `/dev/ttyUSB0`. The non-root writer
+needs both the device mapping and permission to access it.
 
-Choose one ingestion mode:
+Choose one ingestion mode. When switching modes, stop the previous Compose pair
+first using the commands under [Operations](#operations).
 
 ```sh
 # WiFi / MQTT
 docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml up -d --build
 
-# USB serial — set SERIAL_HOST_DEVICE in .env first if needed
+# USB serial — configure SERIAL_HOST_DEVICE and SERIAL_GID first
 docker compose -f docker-compose-base.yml -f docker-compose-serial.yml up -d --build
 ```
 
+For an offline host with all required images already available under their
+configured image references, replace `--build` with `--no-build --pull never`.
+
 Open `http://localhost:3000`, or `http://<docker-host-address>:3000` from another
-device on the same LAN. No separate analytics service or browser API address is
-needed. First startup waits for MariaDB and creates missing tables without
-replacing existing rows.
+device on the same LAN. If port 3000 is already in use, set `WEB_PORT` in `.env`
+before starting, and use that port in the browser URL. No separate analytics
+service or browser API address is needed. First startup waits for MariaDB and
+creates missing tables without replacing existing rows.
 If existing columns have incompatible types, capacities, or required insert
 constraints, startup stops and identifies the table/column. It does not alter the
 existing schema automatically.
@@ -92,10 +133,13 @@ port to the host, set `WEB_BIND_ADDRESS=127.0.0.1`.
 | `MAX_PACKET_BYTES` | `65536` | Packet/frame size limit; maximum configurable value 1048576 |
 | `DEVICE_STALE_SECONDS` | `300` | Last-seen freshness window |
 
-Serial mode enables web command controls automatically. A command is **queued**
-after its database insert succeeds, then dispatched by the serial adapter. WiFi
-mode does not implement an MQTT command protocol and hides/rejects those controls.
-The firmware wire format is preserved; dispatch is not a device acknowledgement.
+Serial mode enables the **WiFi ON / WiFi OFF** command controls automatically.
+These require firmware that implements the requests; selecting serial mode does
+not verify firmware support. A command is **queued** after its database insert
+succeeds, then dispatched by the serial adapter. WiFi mode does not implement an
+MQTT command protocol and hides/rejects those controls.
+The UI confirms queueing only; a serial write does not confirm device receipt or
+a WiFi state change.
 A database failure after serial transmission can cause a repeated command.
 
 ## Using the interface
@@ -109,11 +153,15 @@ A database failure after serial transmission can cause a repeated command.
   bounds, and detailed message columns. Chart/alert preferences are saved in this
   browser; there is no background notification service.
 
-The interface uses the dark overview layout throughout, with no theme selector. Core styles are built locally with Tailwind and served by Express. The built-in **Setup guide** is available without internet access.
+The interface uses a dark layout throughout, with no theme selector. Core styles
+are built locally with Tailwind and served by Express. The built-in **Setup guide**
+is available without internet access.
 
 Charts and alerts inspect at most the latest 1000 messages matching a topic.
-Text payloads remain visible as messages but are excluded from numeric charts and
-threshold checks. Alerts use values strictly below the minimum or above the
+Charts and threshold checks accept payload strings containing a single finite
+decimal number, such as `"-2.5"`. Nonnumeric text and structured JSON payloads,
+including health messages, remain visible in the message table but are not parsed
+into numeric series. Alerts use values strictly below the minimum or above the
 maximum. All displayed/API timestamps use UTC. Equal timestamps have no guaranteed
 ordering in the existing schema.
 Charts retain separate samples that share a timestamp; multiple series use gaps

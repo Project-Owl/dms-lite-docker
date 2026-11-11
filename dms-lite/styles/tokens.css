@@ -1,0 +1,53 @@
+/* DMS Lite Tokens — shared by the locally built interface and charts. */
+:root {
+  color-scheme: dark;
+
+  --bg: #000000;
+  --surface-1: #000000;
+  --surface-2: #0A0A0A;
+  --surface-3: #1B1F25;
+  --surface-hover: #232830;
+  --nav-hover: #0E0E0E;
+  --nav-selected: #131313;
+  --gray-alpha-100: rgba(255, 255, 255, 0.06);
+
+  --border-subtle: #1F1F1F;
+  --border: #212121;
+  --border-strong: #454545;
+  --border-active: #878787;
+
+  --text-color: #EDEDED;
+  --text-color-secondary: #A0A0A0;
+  --text-primary: #E4E7EB;
+  --text-secondary: #9BA3AE;
+  --text-tertiary: #7A828D;
+  --text-disabled: #5A636F;
+  --text-placeholder: var(--text-secondary);
+
+  --accent: #00A3FF;
+  --accent-hover: #0086D6;
+  --accent-active: #00689E;
+  --accent-subtle: rgba(0, 163, 255, 0.10);
+  --accent-selection: rgba(0, 163, 255, 0.20);
+  --focus-ring: #00A3FF;
+  /* Dark labels keep normal-sized text readable on the bright action fill. */
+  --text-on-accent: #000000;
+  --text-on-accent-active: #FFFFFF;
+
+  --status-online: #00CA50;
+  --status-offline: #FF565F;
+  --status-warning: #FFAE00;
+  --status-syncing: var(--accent);
+  --green-tint: rgba(0, 202, 80, 0.13);
+  --red-tint: rgba(255, 86, 95, 0.13);
+  --amber-tint: rgba(255, 174, 0, 0.13);
+
+  --chart-series-1: var(--accent);
+  --chart-series-2: #C472FB;
+  --chart-text: var(--text-secondary);
+  --chart-grid: var(--border);
+
+  --radius-control: 6px;
+  --radius-panel: 12px;
+  --transition-fast: 150ms ease;
+}

@@ -1,14 +1,18 @@
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="app-shell">
 <aside class="sidebar">
-  <a class="brand" href="/" aria-label="DMS Lite overview"><span class="brand-mark" aria-hidden="true">◈</span><span class="brand-name">DMS <span class="font-normal">Lite</span><small>CLUSTERDUCK PROTOCOL</small></span></a>
-  <p class="nav-caption">WORKSPACE</p>
+  <a class="brand" href="/" aria-label="DMS Lite overview"><img class="brand-logo" src="/images/dms-logo-lite.png" width="433" height="93" alt="DMS Lite"></a>
   <nav class="main-nav" aria-label="Main navigation">
     <% for (const [href,label,key] of [['/','Overview','overview'],['/data','Messages','messages'],['/ducks','Ducks','ducks'],['/settings','Settings','settings']]) { %>
     <a class="nav-link" href="<%= href %>" <%- activePage===key ? 'aria-current="page"' : '' %>><%- include('icon',{name:key}) %><span><%= label %></span></a>
     <% } %>
   </nav>
-  <div class="sidebar-bottom"><div class="ingestion"><%- include('icon',{name:'wave'}) %><div><strong class="text-ink"><%= commandsEnabled?'Serial':'MQTT' %> ingestion</strong><p class="mt-1">Configured on this host</p></div></div><p class="mt-7">Open firmware. Your data.</p><a class="text-link mt-4 text-xs" href="/setup">Setup guide <%- include('icon',{name:'arrow'}) %></a></div>
+  <div class="sidebar-bottom">
+    <section class="ingestion" aria-label="Ingestion configuration">
+      <div class="ingestion-heading"><%- include('icon',{name:'wave'}) %><strong class="text-ink"><%= commandsEnabled?'Serial':'MQTT' %> ingestion</strong></div>
+      <a class="text-link mt-3 text-xs" href="/setup">Setup guide <%- include('icon',{name:'arrow'}) %></a>
+    </section>
+  </div>
 </aside>
 <div class="workspace">
-<header class="topbar"><div><strong class="font-medium">My workspace</strong><span class="mx-3 text-muted" aria-hidden="true">/</span><span class="text-muted"><%= pageTitle %></span></div><span class="flex items-center gap-2 text-muted"><%- include('icon',{name:'lock'}) %><span>Stored locally</span></span></header>
+<header class="topbar"><span class="text-muted"><%= pageTitle %></span><span class="flex items-center gap-2 text-muted"><%- include('icon',{name:'lock'}) %><span>Stored locally</span></span></header>

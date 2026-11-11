@@ -117,6 +117,19 @@ there is no equivalent claim about complete OS/Python vulnerability scanning.
 
 ## Frontend styles
 
+**DMS Lite Tokens** are defined in `dms-lite/styles/tokens.css`. The stylesheet
+maps these semantic colors to the existing Tailwind utilities; charts read the
+same CSS variables so their series, labels, and grid follow the interface palette.
+Use the black canvas, neutral surfaces/borders, and Signal Blue for actions and
+focus. Green marks recently received device messages; stale or unknown freshness
+stays neutral. Preserve the existing freshness rules and labels.
+
+The existing installed/system font stacks and inline SVG icons are retained.
+No font files, icon services, or CDN assets are required. Primary buttons use dark
+text on the bright default/hover blue and white text on the darker active blue
+to preserve readable contrast. Inputs use secondary text for placeholders, a
+visible blue focus ring, and 16px text on narrow screens.
+
 Edit `dms-lite/styles/app.css` and the EJS partials under `views/partials/`.
 The interface is dark-only and uses system fonts. Tailwind 4.3.3 scans explicit
 EJS and browser-script sources and writes the ignored

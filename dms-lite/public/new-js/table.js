@@ -7,7 +7,7 @@ if(search&&topic){
   const apply=()=>{
     const query=search.value.trim().toLowerCase();let count=0;
     for(const row of rows){const match=(!topic.value||row.dataset.topic===topic.value)&&row.textContent.toLowerCase().includes(query);row.hidden=!match;if(match)count++;}
-    document.getElementById('message-filter-status').textContent=`Showing ${count} of ${rows.length} loaded messages`;
+    document.getElementById('message-filter-status').textContent=`Showing ${count} of ${rows.length} loaded ${rows.length===1?'message':'messages'}`;
   };
   search.addEventListener('input',apply);topic.addEventListener('change',apply);
 }

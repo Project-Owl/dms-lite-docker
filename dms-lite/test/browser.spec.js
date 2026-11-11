@@ -1,5 +1,12 @@
 const {test,expect}=require('@playwright/test');
-test.beforeEach(async({request})=>{await request.get('/__fixture?populated');});
+test.beforeEach(async({request,context})=>{
+  // Exercise a cold cache with internet destinations blocked on every page.
+  await context.route('**/*',route=>{
+    const url=new URL(route.request().url());
+    return url.hostname==='127.0.0.1'&&['3107','3108'].includes(url.port)?route.continue():route.abort();
+  });
+  await request.get('/__fixture?populated');
+});
 test('new browser renders charts and inert device text without Flask or remote assets',async({page})=>{
   const errors=[],failed=[],remote=[];
   page.on('pageerror',error=>errors.push(error.message));
@@ -11,8 +18,13 @@ test('new browser renders charts and inert device text without Flask or remote a
   expect(await page.evaluate(()=>window.PACKET_EXECUTED)).toBeUndefined();
   expect(await page.locator('.gmaps-button').count()).toBe(0);
   expect(await page.locator('meta[name=viewport]').getAttribute('content')).not.toContain('user-scalable=no');
-  expect(errors).toEqual([]);expect(failed).toEqual([]);expect(remote).toEqual([]);
   await page.goto('/ducks');await expect(page.getByRole('button',{name:'WiFi ON'})).toHaveCount(0);
+  for(const path of ['/settings','/setup','/']){
+    await page.goto(path);
+    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText('Powered by Clusterduck Protocol',{exact:false})).toBeVisible();
+  }
+  expect(errors).toEqual([]);expect(failed).toEqual([]);expect(remote).toEqual([]);
 });
 test('settings migrate broken storage, persist choices and render network text safely',async({page})=>{
   await page.addInitScript(()=>{if(!sessionStorage.getItem('seeded')){localStorage.setItem('dmsLite.preferences','{');sessionStorage.setItem('seeded','1');}});
@@ -32,22 +44,25 @@ test('empty database and failed chart panel leave usable independent panels',asy
   await expect(page.locator('#chart-status')).toContainText('No');
   await request.get('/__fixture?populated');
   await page.route('**/api/topics',route=>route.fulfill({status:503,contentType:'application/json',body:'{"error":"unavailable"}'}));
-  await page.reload();await expect(page.locator('#chart-status')).toContainText('retry');
+  await page.reload();await expect(page.locator('#chart-status').getByRole('button',{name:'Retry',exact:true})).toBeVisible();
   await expect(page.locator('#info-body')).toContainText('sensor/temp');
 });
 test('dark overview uses real snapshots and a local setup path',async({page,request},testInfo)=>{
  await page.goto('/');
- await expect(page.getByRole('heading',{name:'Your network, at a glance.'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Overview',exact:true})).toBeVisible();
  await expect(page.locator('[data-metric=messages]')).toHaveText('2');
  await expect(page.locator('[data-metric=devices]')).toHaveText('1');
- expect(await page.locator('body').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgb(14, 23, 31)');
+ expect(await page.locator('body').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgb(0, 0, 0)');
  await expect(page.getByRole('combobox',{name:'Theme'})).toHaveCount(0);
  await expect(page.getByRole('navigation',{name:'Main navigation'}).getByRole('link',{name:'Overview'})).toHaveAttribute('aria-current','page');
  expect(await page.locator('link[rel=stylesheet]').first().getAttribute('href')).toMatch(/app\.css\?v=[a-f0-9]+/);
  await page.screenshot({path:`../.scratch/modernization/frontend-${testInfo.project.name}.png`,fullPage:true});
  await request.get('/__fixture?empty');await page.reload();
- await expect(page.getByRole('heading',{name:'Your first message starts here.'})).toBeVisible();
- await page.getByRole('link',{name:'View setup guide'}).click();await expect(page.getByRole('heading',{name:'Connect your first PapaDuck.'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'No messages yet',exact:true})).toBeVisible();
+ await expect(page.getByRole('main')).toContainText('MQTT or USB serial');
+ await expect(page.getByRole('main')).toContainText('matching DMS Lite firmware');
+ await page.screenshot({path:`../.scratch/modernization/empty-${testInfo.project.name}.png`,fullPage:true});
+ await page.getByRole('main').getByRole('link',{name:'Setup guide',exact:true}).click();await expect(page.getByRole('heading',{name:'Setup guide',exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 test('message filters preserve raw text and long identifiers fit a narrow viewport',async({page,request})=>{
@@ -67,13 +82,13 @@ test('overview keeps device results when messages are unavailable',async({page,r
  await request.get('/__fixture?unavailable');await page.goto('/');
  await expect(page.locator('[data-metric=messages]')).toHaveText('—');
  await expect(page.locator('[data-metric=devices]')).toHaveText('1');
- await expect(page.getByText('Latest messages are unavailable.',{exact:true})).toBeVisible();
- await expect(page.getByRole('heading',{name:'Your first message starts here.'})).toHaveCount(0);
+ await expect(page.getByText('Could not load messages.',{exact:true})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'No messages yet',exact:true})).toHaveCount(0);
 });
 test('serial command forms remain gated and describe queued delivery',async({page})=>{
  await page.goto('http://127.0.0.1:3108/ducks');
  await expect(page.getByRole('button',{name:'WiFi ON'})).toHaveCount(1);
- await expect(page.getByText('Queueing a command does not confirm delivery to the device.',{exact:true})).toBeVisible();
+ await expect(page.getByText('Queued commands do not confirm device receipt.',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'WiFi ON'}).click();await expect(page.getByRole('status')).toContainText('Command queued');
 });
 for(const staleFailure of [false,true])test(`new chart selection ignores older ${staleFailure?'failure':'success'}`,async({page})=>{
@@ -91,7 +106,7 @@ for(const staleFailure of [false,true])test(`new chart selection ignores older $
   const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/readings'&&new URL(r.url()).searchParams.get('topic')==='sensor/temp');release();await (await response).finished();
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   expect(await page.evaluate(()=>Chart.getChart(document.getElementById('mychart')).data.datasets[0].label)).toBe('humidity');
-  await expect(page.locator('#chart-status')).not.toContainText('retry');
+  await expect(page.locator('#chart-status').getByRole('button',{name:'Retry',exact:true})).toHaveCount(0);
  }finally{release();}
 });
 for(const pending of [true,false])test(`settings preserve unavailable selections during ${pending?'pending requests':'partial failure'}`,async({page})=>{

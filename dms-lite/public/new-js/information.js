@@ -8,7 +8,7 @@ function display() {
   document.getElementById('datamount').value = preferences.limit;
   const alerts=document.getElementById('saved-alerts');alerts.replaceChildren();
   for(const alert of preferences.alerts){const item=document.createElement('li');item.textContent=`${alert.topic}: below ${alert.min} or above ${alert.max}`;alerts.append(item);}
-  if(!preferences.alerts.length){const item=document.createElement('li');item.textContent='No alert thresholds configured.';alerts.append(item);}
+  if(!preferences.alerts.length){const item=document.createElement('li');item.textContent='No thresholds set.';alerts.append(item);}
   const body = document.getElementById('table_body'); body.replaceChildren();
   appendRow(body,[preferences.duckId || 'Not selected',preferences.chartType,preferences.topic || 'Not selected',preferences.secondTopic,preferences.limit]);
 }
@@ -27,7 +27,7 @@ for(const [id,value] of [['firsttopic',preferences.topic],['secondtopic',prefere
 document.getElementById('alert_bt').disabled=true;
 async function loadOptions() {
   if(loadingOptions)return;
-  loadingOptions=true;optionStatus.textContent='Loading topics and devices…';
+  loadingOptions=true;optionStatus.textContent='Loading topics and Ducks…';
   const results=await Promise.allSettled([
     topicsReady?Promise.resolve():fetchJson('/api/topics').then(topics=>{
       populate(document.getElementById('firsttopic'),topics,preferences.topic);
@@ -41,14 +41,14 @@ async function loadOptions() {
   ]);
   loadingOptions=false;
   if(results.some(result=>result.status==='rejected'))showFailure(optionStatus,loadOptions);
-  else optionStatus.textContent=document.getElementById('topic_alert').options.length?'':'No messages yet. Options appear after data arrives.';
+  else optionStatus.textContent=document.getElementById('topic_alert').options.length?'':'Topics and Ducks appear after the first message.';
 }
 function save(changes) {
-  preferences = savePreferences(storage,changes); display(); status.textContent = 'Saved settings for this browser.';
+  preferences = savePreferences(storage,changes); display(); status.textContent = 'Saved.';
 }
 document.getElementById('toData').addEventListener('click',() => {
   const limit = Number(document.getElementById('datamount').value);
-  if (!Number.isInteger(limit) || limit < 1 || limit > 1000) {status.textContent = 'Choose a data limit from 1 to 1000.';return;}
+  if (!Number.isInteger(limit) || limit < 1 || limit > 1000) {status.textContent = 'Sample limit must be a whole number from 1 to 1,000.';return;}
   const changes={chartType:document.getElementById('graphtype').value,limit};
   if(topicsReady)Object.assign(changes,{topic:document.getElementById('firsttopic').value,secondTopic:document.getElementById('secondtopic').value});
   if(ducksReady)changes.duckId=document.getElementById('selectduck').value;
@@ -58,9 +58,11 @@ document.getElementById('alert_bt').addEventListener('click',() => {
   const topic = document.getElementById('topic_alert').value;
   const low = document.getElementById('min_alert').value, high = document.getElementById('max_alert').value;
   const min = Number(low), max = Number(high);
-  if (!topic || !low.trim() || !high.trim() || !Number.isFinite(min) || !Number.isFinite(max) || min > max) {
-    status.textContent = 'Choose a topic and valid minimum/maximum values.';return;
+  if (!topic) {status.textContent = 'Select an alert topic.';return;}
+  if (!low.trim() || !high.trim() || !Number.isFinite(min) || !Number.isFinite(max)) {
+    status.textContent = 'Enter a minimum and maximum.';return;
   }
+  if (min > max) {status.textContent = 'Minimum must not exceed maximum.';return;}
   save({alerts:[...preferences.alerts.filter(alert=>alert.topic!==topic),{topic,min,max}]});
 });
 document.getElementById('detailedView').addEventListener('change',event => {

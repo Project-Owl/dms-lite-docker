@@ -65,11 +65,11 @@ def main():
         wait_for(lambda: get('/health/ready'))
         assert get('/api/ducks')==['EXISTING'], 'startup must preserve seeded data'
         with urllib.request.urlopen(url+'/',timeout=20) as response: overview=response.read().decode()
-        assert 'Your network, at a glance.' in overview and 'EXISTING' in overview, 'real overview did not render seeded data'
+        assert '<h1>Overview</h1>' in overview and 'EXISTING' in overview, 'real overview did not render seeded data'
         stylesheet=re.search(r'href="(/stylesheets/app\.css\?v=[a-f0-9]+)"',overview)
         assert stylesheet, 'versioned production stylesheet missing'
         with urllib.request.urlopen(url+stylesheet.group(1),timeout=20) as response: css=response.read().decode()
-        assert '#0e171f' in css and '--color-accent' in css, 'compiled dark styles are missing'
+        assert '--surface-2:' in css and '--chart-series-1:' in css and '--color-accent' in css, 'compiled DMS Lite Tokens are missing'
         print('Real overview and versioned local styles passed',flush=True)
         # Established native connector operation must time out, not hang forever.
         compose('exec','-T','wifiwriter','python','-c',"""
