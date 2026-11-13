@@ -1,3 +1,6 @@
-<h1><%= message %></h1>
-<h2><%= error.status %></h2>
-<pre><%= error.stack %></pre>
+<!doctype html><html lang="en"><head><%- include('partials/head') %></head><body><%- include('partials/nav') %>
+<main id="main" class="main-content" tabindex="-1"><section class="panel"><div class="empty-state">
+  <h1><%= message==='Service unavailable. Please retry.'?'Service unavailable':message %></h1>
+  <p><%= message==='Page not found'?'Use the navigation or return to Overview.':'Check that the host and database are running, then retry.' %></p>
+  <div class="mt-6 flex flex-wrap justify-center gap-3"><a class="button primary" href="<%= retryPath %>"><%= message==='Page not found'?'Overview':'Retry' %></a><a class="button" href="/setup">Setup guide</a></div>
+</div></section></main><%- include('partials/footer') %></body></html>

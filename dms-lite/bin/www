@@ -1,90 +1,30 @@
 #!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
-
-var app = require('../app');
-var debug = require('debug')('dms-lite:server');
-var http = require('http');
-
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
+require('dotenv').config();
+const http = require('node:http');
+const mariadb = require('mariadb');
+const {loadConfig} = require('../config');
+const {createDatabase} = require('../routes/db');
+const {createApp} = require('../app');
+async function main() {
+  const config = loadConfig();
+  const pool = mariadb.createPool(config.database);
+  const db = createDatabase(pool);
+  try {await db.initialize();}
+  catch (error) {
+    await pool.end();
+    throw new Error(error.code === 'SCHEMA_INCOMPATIBLE' ? error.message : 'Database initialization failed; check configuration, readiness and schema');
   }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
+  const server = http.createServer(createApp({...config,db}));
+  server.on('error',() => {console.error('HTTP server failed to listen'); pool.end().finally(() => process.exit(1));});
+  server.listen(config.port,() => console.log(`DMS Lite listening on port ${config.port}`));
+  let stopping = false;
+  const stop = () => {
+    if (stopping) return;
+    stopping = true;
+    const timeout = setTimeout(() => process.exit(1),10000).unref();
+    server.close(() => pool.end().finally(() => {clearTimeout(timeout); process.exit(0);}));
+    server.closeIdleConnections();
+  };
+  process.on('SIGINT',stop); process.on('SIGTERM',stop);
 }
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
+main().catch(error => {console.error(error.message); process.exitCode = 1;});

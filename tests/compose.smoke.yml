@@ -1,0 +1,16 @@
+# Test-only override: replaces the host data bind and operator ports.
+services:
+  web:
+    image: dms-lite-smoke-web
+    ports: !override
+      - "127.0.0.1::3000"
+  mariadb:
+    ports: !override []
+    volumes: !override
+      - smoke-data:/var/lib/mysql
+  MQTT-Server:
+    ports: !override []
+  wifiwriter:
+    image: dms-lite-smoke-wifiwriter
+volumes:
+  smoke-data:

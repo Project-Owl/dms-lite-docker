@@ -4,3 +4,20 @@
 .DS_Store
 data/
 
+# Local AI working documents, tickets, and workflow configuration
+/.scratch/
+/AGENTS.md
+/docs/agents/
+
+
+# Local Python/test environments
+__pycache__/
+*.py[cod]
+.venv/
+
+# Database storage and private migration backups
+/data-mariadb/
+/backups/
+
+# Compiled frontend stylesheet (built locally and in Docker)
+/dms-lite/public/stylesheets/app.css

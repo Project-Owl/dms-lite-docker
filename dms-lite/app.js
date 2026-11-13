@@ -1,108 +1,51 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var dataRouter = require('./routes/data');
-var ducksRouter = require('./routes/ducks');
-var settingsRouter = require('./routes/settings');
-var dbRouter = require('./routes/db')
-
-
-var app = express();
-
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/data', dataRouter);
-app.use('/settings', settingsRouter);
-app.use('/ducks', ducksRouter);
-
-// Serve libraries that were installed via npm - thanks to https://stackoverflow.com/a/70744989
-app.use('/stylesheets/leaflet/', express.static(path.join(__dirname, "node_modules/leaflet/dist/")));
-app.use('/stylesheets/bootstrap/', express.static(path.join(__dirname, "node_modules/bootstrap/dist/")));
-app.use('/stylesheets/tablefilter/', express.static(path.join(__dirname, "node_modules/leaflet/dist/")));
-app.use('/scripts/chart.js/', express.static(path.join(__dirname, "node_modules/chart.js/dist/chart.js/")));
-app.use('/scripts/chart.esm.js/', express.static(path.join(__dirname, "node_modules/chart.js/dist/helper.esm.js/")));
-
-
-app.get("/", (req, res) => {
-  // check if user is logged in, by checking cookie
-  let detailedView = req.cookies.detailedView;
-
-  // render the home page
-  return res.render("data", {
-    detailedView,
+const express = require('express');
+const path = require('node:path');
+const fs = require('node:fs');
+const {createHash} = require('node:crypto');
+const {loadOverview,deviceState,formatUtc} = require('./routes/overview');
+const cookieParser = require('cookie-parser');
+const {createDataRouter, asyncRoute} = require('./routes/data');
+const {createDucksRouter} = require('./routes/ducks');
+const {createAnalyticsRouter} = require('./routes/analytics');
+function createApp({db, commandsEnabled = false, staleAfterSeconds = 300}) {
+  const app = express();
+  app.disable('x-powered-by');
+  app.set('views',path.join(__dirname,'views'));
+  app.set('view engine','ejs');
+  const stylesheet=path.join(__dirname,'public/stylesheets/app.css');
+  app.locals.cssVersion=fs.existsSync(stylesheet)?createHash('sha256').update(fs.readFileSync(stylesheet)).digest('hex').slice(0,12):'build-required';
+  Object.assign(app.locals,{commandsEnabled,staleAfterSeconds,deviceState,formatUtc});
+  app.use((req,res,next)=>{
+    const pages={'/':['overview','Overview'],'/data':['messages','Messages'],'/ducks':['ducks','Ducks'],'/settings':['settings','Settings'],'/setup':['setup','Setup guide']};
+    const [activePage,pageTitle]=pages[req.path]||['','Workspace'];
+    Object.assign(res.locals,{activePage,pageTitle,viewNow:Date.now(),retryPath:['/','/data','/ducks','/settings'].includes(req.path)?req.path:'/'});next();
   });
-});
-app.listen(8000, () => console.log('The server is running port 3000...'));
-
-app.get("/settings", (req, res) => {
-  // get the username
-  let detailedView = req.cookies.username;
-
-  // render welcome page
-  return res.render("settings", {
-    detailedView,
+  app.use(express.json({limit:'64kb'}));
+  app.use(express.urlencoded({extended:false,limit:'64kb'}));
+  app.use(cookieParser());
+  app.use(express.static(path.join(__dirname,'public')));
+  app.use('/stylesheets/leaflet',express.static(path.join(__dirname,'node_modules/leaflet/dist')));
+  app.get('/scripts/chart.js',(req,res) => res.sendFile(path.join(__dirname,'node_modules/chart.js/dist/chart.umd.min.js')));
+  app.get('/health/live',(req,res) => res.json({status:'ok'}));
+  app.get('/health/ready',asyncRoute(async (req,res) => {await db.checkReady(); res.json({status:'ready'});}));
+  app.use('/api',createAnalyticsRouter(db));
+  app.get('/',asyncRoute(async(req,res)=>res.render('index',{snapshot:await loadOverview(db,staleAfterSeconds,res.locals.viewNow)})));
+  app.get('/setup',(req,res)=>res.render('setup'));
+  app.use('/data',createDataRouter(db));
+  app.use('/ducks',createDucksRouter(db,{commandsEnabled,staleAfterSeconds}));
+  app.get('/settings',(req,res) => res.render('settings',{cookies:req.cookies}));
+  app.use((req,res) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/health/')) return res.status(404).json({error:'Not found'});
+    res.status(404).render('error',{message:'Page not found',error:{}});
   });
-});
-
-app.get("/data", (req, res) => {
-  // get the username
-  let detailedView = req.cookies.detailedView;
-
-  // render welcome page
-  return res.render("data", {
-    detailedView,
+  app.use((error,req,res,next) => {
+    const status = error.status >= 400 && error.status < 500 ? error.status : 503;
+    const message = status < 500 ? error.message : 'Service unavailable. Please retry.';
+    if (req.path.startsWith('/api/') || req.path.startsWith('/health/') || /\/get[A-Z]/.test(req.path)) {
+      return res.status(status).json({error:message});
+    }
+    res.status(status).render('error',{message,error:{}});
   });
-});
-
-app.get('/getcookie', (req, res) => {
-  // show the saved cookies
-  console.log(req.cookies)
-  res.send(req.cookies);
-});
-
-app.post("/save", (req, res) => {
-  // get the data
-  let { detailedView } = req.body;
-  console.log(req.body.toString())
-  // saving the data to the cookies
-  res.cookie("detailedView", detailedView);
-  // redirect
-  return res.redirect("/data");//settings
-
-});
-
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = app;
+  return app;
+}
+module.exports = {createApp};

@@ -1,41 +1,42 @@
----
-# This is the Base Compose template. It contains the reusable components
-# for running DMS Lite
-version: "3"
+# Common web/database services; combine with a WiFi or Serial override.
 services:
   web:
     build:
-      dockerfile: Dockerfile
       context: ./dms-lite
     image: dms-lite-web
-    restart: "always"
+    restart: unless-stopped
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     ports:
-      - "3000:3000"
-    links:
-      - mariadb
+      - "${WEB_BIND_ADDRESS:-0.0.0.0}:${WEB_PORT:-3000}:3000"
     environment:
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_HOST: "${MYSQL_HOST}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:?Set MYSQL_DATABASE in .env}"
+      MYSQL_USER: "${MYSQL_USER:?Set MYSQL_USER in .env}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}"
+      MYSQL_HOST: "${MYSQL_HOST:-mariadb}"
+      COMMANDS_ENABLED: "false"
+      DEVICE_STALE_SECONDS: "${DEVICE_STALE_SECONDS:-300}"
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/health/ready', r => {r.resume(); process.exitCode = r.statusCode === 200 ? 0 : 1;}).on('error', () => process.exit(1));"]
+      interval: 5s
+      timeout: 8s
+      retries: 12
+      start_period: 15s
   mariadb:
-    image: docker.io/linuxserver/mariadb:10.5.13-r0-ls43
-    hostname: mariadb
-    restart: "always"
-    ports:
-      - "3306:3306"
+    image: mariadb:11.4.13@sha256:250e1609e93c0e6aecf64bfbab2d84d5e89d2481540fe77447ff6c855c3b1873
+    restart: unless-stopped
     volumes:
-      - ./data:/config
+      - ${DATABASE_DATA_DIR:-./data-mariadb}:/var/lib/mysql
     environment:
-      PUID: 1000
-      PGID: 1000
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_HOST: "${MYSQL_HOST}"
-
-
-
+      MARIADB_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}"
+      MARIADB_DATABASE: "${MYSQL_DATABASE:?Set MYSQL_DATABASE in .env}"
+      MARIADB_USER: "${MYSQL_USER:?Set MYSQL_USER in .env}"
+      MARIADB_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 8s
+      retries: 24
+      start_period: 30s

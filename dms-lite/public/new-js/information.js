@@ -1,104 +1,71 @@
-//settings script
-// call the topics from the DB
-
-const topicurl = new URL('http://127.0.0.1:5000/getTopics')
-const duckurl = new URL('http://127.0.0.1:5000/getDucks')
-// ----------------------------------------------------------------------------------------------
-// Try using the Fetch() API instead 
-// Defining async function
-
-async function getapi(url_t, url_d) {
-    
-  // Storing response
-  const response = await fetch(url_t);
-  // Storing data in form of JSON
-  var topics = await response.json();
-  var selectvalue = document.getElementsByClassName("selecttopic");
-  for(var j = 0; j < selectvalue.length; j++){
-    var selection = selectvalue[j]
-  for(var i = 0; i < topics.length; i++){
-    var selected = document.createElement("OPTION");
-    var text = document.createTextNode(topics[i]);
-    selected.appendChild(text);
-    selected.setAttribute("value", topics[i]);
-    selection.insertBefore(selected,selection.lastChild);
-  }
+import {readPreferences,savePreferences,browserStorage} from './preferences.mjs';
+import {fetchJson,showFailure,appendRow} from './api.mjs';
+const storage = browserStorage();
+let preferences = readPreferences(storage);
+const status = document.getElementById('settings-status');
+function display() {
+  document.getElementById('graphtype').value = preferences.chartType;
+  document.getElementById('datamount').value = preferences.limit;
+  const alerts=document.getElementById('saved-alerts');alerts.replaceChildren();
+  for(const alert of preferences.alerts){const item=document.createElement('li');item.textContent=`${alert.topic}: below ${alert.min} or above ${alert.max}`;alerts.append(item);}
+  if(!preferences.alerts.length){const item=document.createElement('li');item.textContent='No thresholds set.';alerts.append(item);}
+  const body = document.getElementById('table_body'); body.replaceChildren();
+  appendRow(body,[preferences.duckId || 'Not selected',preferences.chartType,preferences.topic || 'Not selected',preferences.secondTopic,preferences.limit]);
 }
-////////////////////////////////////////////////////////////////
-  const resp_ducks = await fetch(url_d); 
-  var ducks = await resp_ducks.json(); 
-  var select_duck = document.getElementsByClassName("selectduck");
-  for(var j = 0; j < select_duck.length; j++){
-    var sel = select_duck[j]
-  for(var i = 0; i < ducks.length; i++){
-    var s = document.createElement("OPTION");
-    var text = document.createTextNode(ducks[i]);
-    s.appendChild(text);
-    s.setAttribute("value", ducks[i]);
-    sel.insertBefore(s,sel.lastChild);
-
-
-  }
+const optionStatus=document.getElementById('settings-options-status');
+let topicsReady=false,ducksReady=false,loadingOptions=false;
+function populate(select,values,saved='') {
+  select.replaceChildren();
+  for(const value of values)select.add(new Option(value,value));
+  if(saved&&!values.includes(saved))select.add(new Option(saved+' (saved)',saved));
+  if(saved)select.value=saved;
+  select.disabled=!select.options.length;
 }
+for(const [id,value] of [['firsttopic',preferences.topic],['secondtopic',preferences.secondTopic],['selectduck',preferences.duckId],['topic_alert','']]){
+  const select=document.getElementById(id);select.add(new Option(value||'Loading options…',value));select.disabled=true;
 }
-// Calling that async function
-getapi(topicurl, duckurl);
-  
-///---------------------------------------------------------------------------------------------
-  // sets data for the graph in Data
-  document.getElementById('toData').addEventListener("click", store);
-  function store(){
-    // Local Storage and Charting variables
-    var local = [];
-    const duck_s = document.getElementById('selectduck'); 
-    const duck = duck_s.options[duck_s.selectedIndex].value;
-    local.push(duck)
-
-    var typegraphselect = document.getElementById('graphtype');
-    const data = document.getElementById('datamount').value
-    const typegraph = typegraphselect.options[typegraphselect.selectedIndex].value
-    local.push(typegraph); 
-
-    var select = document.getElementById('firsttopic');
-    const topic = select.options[select.selectedIndex].value;
-    local.push(topic);
-    
-    //if 2 topic
-    if (typegraph == "multiLine"){
-      var select2 = document.getElementById('secondtopic');
-      const topic2 = select2.options[select2.selectedIndex].value;
-      local.push(topic2);
-    }
-    else{local.push("")}
-    local.push(data);
-    localStorage.setItem("information", JSON.stringify(local))
-
-    // Local storage and Alert variables 
+document.getElementById('alert_bt').disabled=true;
+async function loadOptions() {
+  if(loadingOptions)return;
+  loadingOptions=true;optionStatus.textContent='Loading topics and Ducks…';
+  const results=await Promise.allSettled([
+    topicsReady?Promise.resolve():fetchJson('/api/topics').then(topics=>{
+      populate(document.getElementById('firsttopic'),topics,preferences.topic);
+      populate(document.getElementById('secondtopic'),topics,preferences.secondTopic);
+      populate(document.getElementById('topic_alert'),topics);
+      topicsReady=true;document.getElementById('alert_bt').disabled=!topics.length;
+    }),
+    ducksReady?Promise.resolve():fetchJson('/api/ducks').then(ducks=>{
+      populate(document.getElementById('selectduck'),ducks,preferences.duckId);ducksReady=true;
+    })
+  ]);
+  loadingOptions=false;
+  if(results.some(result=>result.status==='rejected'))showFailure(optionStatus,loadOptions);
+  else optionStatus.textContent=document.getElementById('topic_alert').options.length?'':'Topics and Ducks appear after the first message.';
+}
+function save(changes) {
+  preferences = savePreferences(storage,changes); display(); status.textContent = 'Saved.';
+}
+document.getElementById('toData').addEventListener('click',() => {
+  const limit = Number(document.getElementById('datamount').value);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 1000) {status.textContent = 'Sample limit must be a whole number from 1 to 1,000.';return;}
+  const changes={chartType:document.getElementById('graphtype').value,limit};
+  if(topicsReady)Object.assign(changes,{topic:document.getElementById('firsttopic').value,secondTopic:document.getElementById('secondtopic').value});
+  if(ducksReady)changes.duckId=document.getElementById('selectduck').value;
+  save(changes);
+});
+document.getElementById('alert_bt').addEventListener('click',() => {
+  const topic = document.getElementById('topic_alert').value;
+  const low = document.getElementById('min_alert').value, high = document.getElementById('max_alert').value;
+  const min = Number(low), max = Number(high);
+  if (!topic) {status.textContent = 'Select an alert topic.';return;}
+  if (!low.trim() || !high.trim() || !Number.isFinite(min) || !Number.isFinite(max)) {
+    status.textContent = 'Enter a minimum and maximum.';return;
   }
-  document.getElementById('alert_bt').addEventListener("click", alert);
-  function alert(){
-    //var alert_sys={}; 
-    var topic_alert_id = document.getElementById('topic_alert'); 
-    const topic_alert = topic_alert_id.options[topic_alert_id.selectedIndex].value;
-    var min_alert = document.getElementById('min_alert').value;
-    var max_alert = document.getElementById('max_alert').value; 
-     
-    var prevent_overwrite = JSON.parse(localStorage.getItem("alert_information"));
-    prevent_overwrite[topic_alert] = [min_alert,max_alert];
-    localStorage.setItem("alert_information", JSON.stringify(prevent_overwrite));
-  }
-
-  //-------------------------------------------------------------------------------------
-  //Populate the table 
-function loadTableData(){
-  const array_val = [];
-  $.each(localStorage, function(key, value){array_val.push(value);});
-  const table = document.getElementById("table_body");
-  const setting = JSON.parse(array_val[0]); 
-  let row = table.insertRow(); 
-  setting.forEach(item => {
-    let cell = row.insertCell(-1); 
-    cell.innerHTML = item;
-  })
-} 
-loadTableData();
+  if (min > max) {status.textContent = 'Minimum must not exceed maximum.';return;}
+  save({alerts:[...preferences.alerts.filter(alert=>alert.topic!==topic),{topic,min,max}]});
+});
+document.getElementById('detailedView').addEventListener('change',event => {
+  document.cookie = 'detailedView='+event.target.checked+'; Path=/; SameSite=Lax';
+});
+display();loadOptions();

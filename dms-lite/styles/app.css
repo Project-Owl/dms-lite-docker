@@ -1,0 +1,152 @@
+@import "tailwindcss" source(none);
+@import "./tokens.css";
+@source "../views";
+@source "../public/new-js";
+@theme {
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.45;
+  --color-canvas: var(--bg);
+  --color-panel: var(--surface-2);
+  --color-sidebar: var(--surface-1);
+  --color-ink: var(--text-color);
+  --color-muted: var(--text-color-secondary);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-positive: var(--status-online);
+  --color-soft: var(--nav-selected);
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@layer base {
+  html { color-scheme: dark; scrollbar-color: var(--border-strong) var(--surface-1); }
+  body { @apply m-0 bg-canvas font-sans text-sm text-ink antialiased; }
+  button, input, select { font: inherit; }
+  button, summary { cursor: pointer; }
+  button, a, input, select, summary { touch-action: manipulation; }
+  :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  ::selection { background: var(--accent-selection); color: var(--text-primary); }
+  a { text-underline-offset: 4px; }
+  input:not([type=checkbox]), select { @apply w-full border border-line px-3 py-2.5 text-sm; min-height: 42px; border-radius: var(--radius-control); background: var(--surface-2); color: var(--text-primary); caret-color: var(--accent); }
+  input::placeholder { color: var(--text-placeholder); opacity: 1; }
+  input:not(:disabled):hover, select:not(:disabled):hover { border-color: var(--border-strong); }
+  input:focus-visible, select:focus-visible { border-color: var(--accent); }
+  input[type=checkbox] { accent-color: var(--accent); width: 17px; height: 17px; }
+  button:disabled, input:disabled, select:disabled { cursor: not-allowed; color: var(--text-disabled); }
+  a, button, input, select, summary { transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast); }
+  label { @apply mb-2 block text-sm font-medium; }
+  th { @apply border-y border-line px-5 py-3 text-left text-xs font-medium text-muted; background: var(--surface-3); }
+  td { @apply border-b border-line px-5 py-4 align-top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  table { @apply w-full border-collapse text-left text-sm; }
+  time, code { overflow-wrap: anywhere; }
+  time, .metric-value, input[type=number] { font-variant-numeric: tabular-nums; }
+  code, .mono { @apply font-mono text-xs; }
+  h1 { @apply text-2xl font-semibold tracking-tight md:text-3xl; }
+  h2 { @apply text-base font-semibold tracking-tight; }
+  h3 { @apply text-base font-medium; }
+  p { line-height: 1.7; }
+  [hidden] { display:none!important; }
+}
+@layer components {
+  .icon { width:18px;height:18px;flex:none;display:inline-block;vertical-align:middle; }
+  .skip-link { @apply sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:p-3 focus:text-canvas; }
+  .app-shell { @apply min-h-screen lg:flex; }
+  .sidebar { @apply border-b border-line bg-sidebar p-4 lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:flex lg:w-56 lg:flex-col lg:border-r lg:border-b-0 lg:px-4 lg:py-8; }
+  .brand { @apply flex min-h-10 w-fit max-w-full items-center no-underline; }
+  .brand-logo { display: block; width: 144px; max-width: 100%; height: auto; }
+  .main-nav { @apply mt-5 flex justify-between gap-1 lg:mt-10 lg:flex-col lg:gap-2; }
+  .nav-link { @apply flex min-h-11 min-w-0 items-center gap-2 rounded-lg px-2 py-2.5 text-xs font-medium text-muted no-underline lg:gap-3 lg:px-3 lg:text-sm; }
+  .nav-link:hover { background: var(--nav-hover); color: var(--text-primary); }
+  .nav-link[aria-current=page] { background: var(--nav-selected); color: var(--text-primary); }
+  .nav-link[aria-current=page] .icon { color: var(--accent); }
+  .sidebar-bottom { @apply mt-auto hidden px-3 pt-12 text-xs text-muted lg:block; }
+  .ingestion { @apply rounded-lg border border-line bg-panel p-3; }
+  .ingestion-heading { @apply flex items-center gap-2; }
+  .workspace { @apply min-w-0 flex-1 lg:ml-56; }
+  .topbar { @apply flex min-h-16 items-center justify-between gap-4 border-b border-line bg-sidebar px-5 text-xs md:px-9; }
+  .topbar .icon { width:14px;height:14px; }
+  .main-content { @apply mx-auto max-w-[1500px] px-5 pt-8 pb-4 md:px-9 md:pt-10; }
+  .page-heading { @apply mb-7 flex items-start justify-between gap-4; }
+  .description { @apply mt-2 text-sm text-muted; }
+  .button { @apply inline-flex min-h-10 shrink-0 items-center justify-center gap-2 border border-line bg-panel px-3 py-2 text-sm font-medium text-ink no-underline; border-radius: var(--radius-control); }
+  .button:hover:not(:disabled) { background: var(--nav-selected); border-color: var(--border-strong); }
+  .button:active:not(:disabled) { border-color: var(--border-active); }
+  .button .icon { width:14px;height:14px; }
+  .button.primary { background: var(--accent); border-color: var(--accent); color: var(--text-on-accent); }
+  .button.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .button.primary:active:not(:disabled) { background: var(--accent-active); border-color: var(--accent-active); color: var(--text-on-accent-active); }
+  .button:disabled { background: var(--surface-2); border-color: var(--border); color: var(--text-disabled); }
+  .text-link { @apply inline-flex items-center gap-2 text-sm text-accent no-underline hover:underline; }
+  .status-strip { @apply mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-line bg-panel px-4 py-3 text-sm; }
+  .status-dot { @apply inline-block h-2 w-2 shrink-0 rounded-full; color: var(--status-online); background: currentColor; }
+  .status-dot.stale { color: var(--text-color-secondary); }
+  .metrics { @apply mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-5; }
+  .metric { @apply rounded-xl border border-line bg-panel p-5; }
+  .metric-title { @apply flex items-center justify-between gap-2 text-sm text-muted; }
+  .metric-value { @apply my-3 text-3xl font-semibold tracking-tight; }
+  .metric-value small { @apply ml-1 text-sm font-normal tracking-normal text-muted; }
+  .metric-caption { @apply text-xs leading-relaxed text-muted; }
+  .overview-grid { @apply mb-6 grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)]; }
+  .panel { @apply min-w-0 overflow-hidden border border-line bg-panel; border-radius: var(--radius-panel); }
+  .panel-heading { @apply flex flex-wrap items-start justify-between gap-3 px-5 pt-5 pb-4; }
+  .panel-heading p { @apply mt-1 text-xs text-muted; }
+  .panel-body { @apply px-5 pb-5; }
+  .panel-foot { @apply border-t border-line px-5 py-3 text-xs leading-relaxed text-muted; }
+  .panel-stack { @apply grid gap-6; }
+  .chart-frame { @apply relative mx-3 mb-4 h-64 min-w-0 sm:mx-5; }
+  .chart-select { @apply min-w-0; max-width:100%;width:210px; }
+  .chart-select select { @apply py-2 text-xs; }
+  .chart-status { @apply px-5 pb-4 text-xs text-muted; }
+  .chart-status button, .status-message button { @apply ml-1 rounded border border-line px-2 py-1 text-accent; }
+  .duck-row { @apply flex min-w-0 items-start gap-3 border-t border-line px-5 py-4 no-underline; }
+  .duck-row:hover { background: var(--nav-selected); }
+  .duck-symbol { @apply grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-line bg-canvas text-muted; }
+  .duck-label { @apply min-w-0 flex-1; overflow-wrap:anywhere; }
+  .duck-label strong { @apply font-mono text-xs font-medium; }
+  .duck-label p { @apply mt-1 text-xs text-muted; }
+  .table-scroll { @apply w-full overflow-x-auto; }
+  .table-scroll:focus-visible { outline-offset: -2px; }
+  .message-table { min-width:600px; }
+  .message-table td { max-width:320px;overflow-wrap:anywhere; }
+  .topic-tag { @apply inline-block max-w-full rounded-md border border-line bg-canvas px-2 py-1 font-mono text-xs text-muted; overflow-wrap:anywhere; }
+  .table-footer { @apply flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-xs text-muted; }
+  .filter-bar { @apply flex flex-col gap-3 px-5 pb-5 sm:flex-row; }
+  .filter-bar label { @apply m-0 flex-1; }
+  .filter-bar label:last-child { @apply sm:max-w-56; }
+  .message-empty { @apply px-5 py-8 text-sm text-muted; }
+  .empty-state { @apply mx-auto max-w-xl px-6 py-12 text-center; }
+  .empty-state h2 { @apply mt-4 text-xl; }
+  .empty-state p { @apply mt-3 text-sm text-muted; }
+  .empty-symbol { @apply mx-auto grid h-14 w-14 place-items-center rounded-xl border border-line bg-soft text-muted; }
+  .setup-steps { @apply my-7 space-y-5 text-left; }
+  .setup-steps li { @apply flex gap-3; }
+  .step-number { @apply grid h-7 w-7 shrink-0 place-items-center rounded-full bg-soft text-sm text-muted; }
+  .setup-steps p { @apply mt-1; }
+  .duck-grid { @apply grid gap-5 md:grid-cols-2 2xl:grid-cols-3; }
+  .duck-card { @apply p-5; }
+  .duck-card h2 { @apply mt-4 font-mono text-sm;overflow-wrap:anywhere; }
+  .duck-card dl { @apply my-5 grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-3 text-sm; }
+  .duck-card dt { @apply text-muted; }
+  .duck-card dd { @apply m-0 min-w-0 text-right; overflow-wrap:anywhere; }
+  .duck-card details { @apply border-t border-line pt-4; }
+  .duck-card details summary { @apply text-sm text-accent; }
+  .command-actions { @apply mt-5 flex flex-wrap gap-3; }
+  .settings-grid { @apply grid gap-6 xl:grid-cols-[1.4fr_1fr]; }
+  .form-grid { @apply grid gap-5 sm:grid-cols-2; }
+  .field { @apply mb-5 min-w-0; }
+  .field p { @apply mt-2 text-xs text-muted; }
+  .notice { @apply mt-5 rounded-lg border border-line bg-canvas p-4 text-xs leading-relaxed text-muted; }
+  .status-message { @apply mb-5 text-sm text-accent; }
+  .status-message:empty { display:none; }
+  .footer { @apply mx-auto flex max-w-[1500px] flex-wrap justify-between gap-3 px-5 py-8 text-xs text-muted md:px-9; }
+  .setup-section { @apply min-w-0 rounded-xl border border-line bg-panel p-6; }
+  .setup-section h2 { @apply mb-4; }
+  .setup-section p { @apply my-3 text-sm text-muted; }
+  .setup-section pre { @apply my-4 overflow-x-auto rounded-lg border border-line bg-canvas p-4 text-xs leading-relaxed; }
+  .gps-link { @apply mt-3 flex flex-wrap gap-2; }
+  .gps-link button { @apply rounded border border-line px-2 py-1 text-xs text-accent; }
+  .gps-embed { @apply mt-3 w-full; max-width:100%; }
+}
+@media (max-width: 639px) {
+  input:not([type=checkbox]), select, .chart-select select { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior:auto!important;animation:none!important;transition:none!important; } }

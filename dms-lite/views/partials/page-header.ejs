@@ -1,0 +1,4 @@
+<div class="page-heading">
+  <div><h1><%= heading %></h1><% if (typeof description !== 'undefined' && description) { %><p class="description"><%= description %></p><% } %></div>
+  <% if (typeof refreshPath !== 'undefined') { %><a class="button" href="<%= refreshPath %>"><%- include('icon',{name:'refresh'}) %>Refresh</a><% } %>
+</div>

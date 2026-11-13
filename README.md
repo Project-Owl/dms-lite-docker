@@ -1,122 +1,200 @@
-![Imgur](https://i.imgur.com/XLb61lc.png)
+# DMS Lite
 
-<a href="https://discord.com/invite/Cbgbzq353z"><img src="https://img.shields.io/badge/Join-Discord-aa80ff" alt="Discord"></a> ![GitHub](https://img.shields.io/github/license/project-owl/dms-lite-docker?style=flat-square) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/project-owl/dms-lite-docker?logo=github&style=flat-square)
+[![License](https://img.shields.io/github/license/project-owl/dms-lite-docker?style=flat-square)](LICENSE)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/project-owl/dms-lite-docker?logo=github&style=flat-square)
 
+DMS Lite is an open source, local tool for collecting and viewing data from
+[ClusterDuck Protocol](https://github.com/Project-Owl/ClusterDuck-Protocol)
+firmware without a cloud subscription. Connect a PapaDuck over MQTT or USB serial,
+then use the browser interface to inspect messages, device activity, charts, and
+browser alert thresholds. Core pages and assets work without internet access;
+optional Google Maps/OpenStreetMap views require connectivity.
 
-![Imgur](https://i.imgur.com/3zInWHg.jpg)
+## How it works
 
+A PapaDuck receives messages from your ClusterDuck network and forwards them to
+DMS Lite using one of two ingestion modes:
 
-## About
-DMS LITE is a lightweight version of the OWL **DMS** that runs in the cloud. The DMS Lite is built to run on a local device if internet connectivity is not available. The DMS (Data Managment System) is built to collect data from the [ClusterDuck Protocol](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol) and provide simple data management, analytics, and network activity.
+- **USB serial:** connect the PapaDuck to the Docker host over USB. The serial
+  writer reads newline-delimited JSON and stores the messages in MariaDB.
+- **WiFi / MQTT:** the PapaDuck publishes JSON to the local MQTT broker. The WiFi
+  writer subscribes to the broker and stores the messages in the same database.
 
-## How it Works
-There are two different ways to get the data from your ClusterDuck network into the DMS locally: using a USB Serial connection or WiFi.
+Both modes use the same browser interface to display stored messages, Ducks, and
+numeric readings. Open the interface on the Docker host or another device on its
+local network.
 
-- **Serial Connection (Currently only for Raspberry Pi):** Using the serial connection, the Raspberry Pi or other device reads the incoming messages from the serial monitor by a wired connection from the [modifed PapaDuck](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-Serial-Example) and writes the data into the database.
-- **WiFi Connection** If you use the WiFi option your [modified PapaDuck](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-WiFi-Example) will publish all its data to an MQTT broker that runs on your local device.
+Use PapaDuck firmware that supports your chosen ingestion mode and the packet
+format below. Use the CDP 5.5 [USB serial example](https://github.com/Project-Owl/ClusterDuck-Protocol/tree/release-5.5.0/examples/Custom-Papa-Examples/DMS-Lite-Serial-PapaDuck)
+or [WiFi example](https://github.com/Project-Owl/ClusterDuck-Protocol/tree/release-5.5.0/examples/Custom-Papa-Examples/DMS-Lite-WiFi-PapaDuck)
+on the `release-5.5.0` branch. Follow the [firmware setup and compatibility guide](https://github.com/Project-Owl/ClusterDuck-Protocol/blob/release-5.5.0/examples/Custom-Papa-Examples/README-DMS-Lite.md)
+for board settings and configuration. CDP 5.5 does not support the legacy serial
+WiFi commands exposed by DMS Lite's command controls.
 
-The PapaDucks are running [a different firmware](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples) than the regular ClusterDuck Protocol PapaDuck example.
+The stack contains an Express/EJS web application, MariaDB, and a Python ingestion
+adapter. WiFi mode also starts a Mosquitto broker. Express serves all page and
+analytics requests on port 3000.
 
+**Offline use:** download/build the container images and dependencies before
+deployment, or transfer them from a connected machine. Once installed, core pages,
+styles, scripts, and icons are served locally; fonts use the browser's installed
+font stack. Internet access is needed for the optional online map views.
 
-![Imgur](https://i.imgur.com/B5NbR0k.jpg)
+## Requirements
 
-## Prerequisites:
+- Docker running 64-bit Linux containers on amd64 or arm64.
+- Docker Engine with Docker Compose 2.24.4 or newer.
+- A PapaDuck running the compatible MQTT or serial DMS Lite firmware.
+- For USB serial: a native Linux host with access to the serial device, such as a
+  64-bit Raspberry Pi. Set the device path and permissions as described below.
+  USB passthrough on macOS/Windows depends on the container runtime and requires
+  separate host configuration; the native Linux instructions do not establish
+  support for every desktop runtime.
 
--  **Docker** Download and install Docker for your operating system. To do this please go to the official installation page: [Install Docker](https://docs.docker.com/get-docker/).
+### Packet format
 
-- **Docker Compose** We use Docker Compose to handle building and running each container in this solution together, so you
-will need to install Docker Compose for your operating system.
+Ingestion expects newline-delimited UTF-8 JSON over serial, or JSON MQTT messages,
+with these fields. The default serial rate is 115200 baud:
 
--  **ClusterDuck Protocol** Install the CDP Library onto your computer by following these instructions:  [CDP installation](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/wiki/getting-started). _you will need a WiFi or Serial PapaDuck as well as a DuckLink device to test the DMS Lite._
-
-- **RaspAp - Only for Local Raspberry Pi Solution** If you don't have a local network to connect your WiFi PapaDuck to you can turn your Raspberry Pi into an access point by installing [RaspAp](https://raspap.com/#quick). *Note: Install RaspAp after successfully installing the Docker image if your Pi uses a WiFi connection*
-
-## Images
-In the root folder, there are three subfolders that each contain code to build a Docker image:
-
- 1. **dms-lite** Contains the web application/front end.
- 2. **wifi-sql-writer** Writes your incoming data from MQTT into the database
- 3. **serial-sql-writer** If a serial-usb connection is used this image will write incoming serial data to the database.
-
-## Install
-
-1. Download the source code onto your local machine
- `git clone https://github.com/Project-Owl/dms-lite-docker.git`
-
-2. Navigate to the `dms-lite-docker` folder you just copied. There, you should see the three sub-folders.
-
-3. Setup environment variable file
-- Make a copy of the file named `.env.example` and save it as `.env`.
-- Modify the new `.env` and enter the information for the `MYSQL` variables. These can be any values you would like as they are applied to the MariaDB instance. These variables are copied to all of the container images. For the two `PASSWORD` fields, make sure these values are at least 6 characters in length. For the `MYSQL_HOST` variable, you will input `mariadb`. This matches the name of the container for the Maria database defined in `docker-compose-base.yml`.
-
-4. If you are planning to run the `serial` version, you will also need to modify `docker-compose-serial.yml` with the correct USB mapping:
-
-   * For a Linux-based host, the mapping should be `"/dev/ttyUSB0:/dev/ttyUSB0"`
-   * For a macOS-based host, the mapping should be `"/dev/cu.usbserialXXXXX:/dev/ttyUSB0"`. It is possible the macOS host will assign a unique identifier to the port. You can verify from a Terminal window by running `ls /dev/cu*` to identify the correct port.
-   * For a Windows-based host, the mapping should be `"class/86E0D1E0-8089-11D0-9CE4-08003E301F73:/dev/ttyUSB0"`. This is for USB devices that show up as a COM port in the Windows devices list. For the list of class GUIDs, please refer to [this](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/hardware-devices-in-containers?WT.mc_id=IoT-MVP-5002324) documentation.
-
-
-5. Run and build the Docker Images
-   - **Serial Connection** run the following command
- `docker compose -f docker-compose-base.yml -f docker-compose-serial.yml up -d`
- *Note: Your [Serial-Papa](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-Serial-Example) needs to be connected to a USB port to build successfully*
-
-    - **WiFi Connection** run the following command
- `docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml up -d`
- *Note: Follow these instructions to connect to your [WiFi-PapaDuck](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-WiFi-Example) to your local MQTT Broker*
-
-6. After you successfully installed and started your Docker images, you can see the DMS Lite by going to `localhost:3000` inside of a browser.
-
-7. If you would like to stop running your services:
-   - Run `docker compose -f docker-compose-base.yml -f docker-compose-serial.yml down` for the Serial version
-   - Run `docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml down` for the Wifi version
-
-
-## Setup your network
-
-### Setup Serial PapaDuck
-Setup you [Serial PapaDuck](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-Serial-Example) by downloading the source code and flashing your development board. After you have successfully setup your Duck, connect it to your Local machine by USB cable.
-
-### Setup WiFi PapaDuck
-If you are using the WiFi-PapaDuck.ino to connect to your local network you need to enter the IP address of your local MQTT network **(the machine Docker is running on and not the IP of the container)** and your WiFi Network name and Password to the [Papa's .ino file](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol/tree/master/examples/5.Custom-Papa-Examples/PapiDuck-DMS-Lite-WiFi-Example). If you are using a raspberry Pi and RaspAp and want a fully offline solution you can use the default .ino file credentials.
-
-```c
-const char* user = "raspi-webgui"; // change to your home WiFi SSID if not using RaspAp
-const char* pass = "ChangeMe"; // change to your home WiFi password if not using RaspAp
-const char* mqtt_server = "10.3.141.1"; // change to local IP if not using RaspAp
+```json
+{"DeviceID":"DUCK001","topic":"sensor/temp","MessageID":"MSG001","Payload":"-2.5","path":"A,B","hops":2,"duckType":1}
 ```
 
-## Troubleshooting
+Identifiers/topics are nonempty strings, payload/path are strings, and hops/type
+are integers from 0 to 2147483647. Additional fields are accepted. Malformed
+messages are logged and skipped; subsequent messages continue to be processed.
 
-### Container logs
-If you would like to see the logging output of a particular container, and you are running in detached mode (the `-d` flag above),
-first run the `docker container ls` command to get the list of all running containers. Under the `NAMES` column, copy the name of the container
-you want to view and then run `docker logs <containername>`. This will output the most recent log information.
+## Start
 
-### Failed to execute script
-If you get this error `Failed to execute script docker-compose`, make sure Docker is running.
+**Existing installations:** stop before starting this version. The database now
+uses official MariaDB 11.4 and a separate `data-mariadb/` directory. Follow the
+[database migration guide](docs/database-migration.md) to preserve legacy `data/`.
+There is no automatic import. Retain your existing credentials.
 
-### Local container image cleanup
-If you are running into errors and need to clean up the existing images to rebuild them, first make sure you are not running any
-DMS Lite components by running the appropriate `docker-compose down` script from the steps above. You can also check for any running
-images with `docker container ls`.
+For a fresh installation, clone the modernization branch and create your local
+configuration. These instructions describe `modern-update`, which is separate
+from the legacy default `main` while modernization is under review:
 
-Next, run `docker images`. This will output all of the container images stored on your system. Identify the name of the image under
-REPOSITORY and it's TAG and then run `docker image rm IMAGENAME:TAG`, replacing `IMAGENAME` and `TAG` with the corresponding values.
+```sh
+git clone --branch modern-update https://github.com/Project-Owl/dms-lite-docker.git
+cd dms-lite-docker
+cp .env.example .env
+```
 
-Rerunning the docker compose step from above will rebuild the image again from scratch.
+Set `MYSQL_ROOT_PASSWORD` and `MYSQL_PASSWORD` in `.env`. Choose your database/user
+names before the first start. Keep `MYSQL_HOST=mariadb` for the bundled database.
 
+**For USB serial on Linux:** set `SERIAL_HOST_DEVICE` in `.env` to the PapaDuck's
+device path. Set `SERIAL_GID` to the numeric group owning that device; for example,
+run `stat -c %g /dev/ttyUSB0` for a device at `/dev/ttyUSB0`. The non-root writer
+needs both the device mapping and permission to access it.
 
-## Contributing
+Choose one ingestion mode. When switching modes, stop the previous Compose pair
+first using the commands under [Operations](#operations).
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our Code of Conduct, and the process for submitting DMS-Lite improvements. You can reach out directly on our [Slack Workspace](https://www.project-owl.com/slack) for any questions and work with the community.
+```sh
+# WiFi / MQTT
+docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml up -d --build
 
+# USB serial — configure SERIAL_HOST_DEVICE and SERIAL_GID first
+docker compose -f docker-compose-base.yml -f docker-compose-serial.yml up -d --build
+```
 
-## License
+For an offline host with all required images already available under their
+configured image references, replace `--build` with `--no-build --pull never`.
 
-This project is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details.
+Open `http://localhost:3000`, or `http://<docker-host-address>:3000` from another
+device on the same LAN. If port 3000 is already in use, set `WEB_PORT` in `.env`
+before starting, and use that port in the browser URL. No separate analytics
+service or browser API address is needed. First startup waits for MariaDB and
+creates missing tables without replacing existing rows.
+If existing columns have incompatible types, capacities, or required insert
+constraints, startup stops and identifies the table/column. It does not alter the
+existing schema automatically.
 
-## Version
-v1.0.0
+In WiFi mode, configure the PapaDuck to publish to the Docker host's LAN address
+on port 1883. The broker permits anonymous access by default, and the web UI has
+no login; run this configuration on a trusted local network. To confine the web
+port to the host, set `WEB_BIND_ADDRESS=127.0.0.1`.
 
+## Configuration
 
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD` | Required | Database initialization credentials |
+| `MYSQL_DATABASE`, `MYSQL_USER` | `dms-lite` in example | Database and application account |
+| `MYSQL_HOST` | `mariadb` | Database hostname |
+| `WEB_PORT`, `WEB_BIND_ADDRESS` | `3000`, `0.0.0.0` | Host web port and interface |
+| `SERIAL_HOST_DEVICE` | `/dev/ttyUSB0` | Linux host device mapped into the serial container |
+| `DATABASE_DATA_DIR` | `./data-mariadb` | Official MariaDB storage; never point this at legacy `data/` |
+| `SERIAL_GID` | `20` | Supplementary host serial-device group; use `stat -c %g /dev/ttyUSB0` |
+| `SERIAL_BAUD` | `115200` | Serial baud rate |
+| `MQTT_HOST`, `MQTT_PORT` | `mosquitto`, `1883` | Broker used by the WiFi writer |
+| `MQTT_HOST_PORT`, `MQTT_BIND_ADDRESS` | `1883`, `0.0.0.0` | Bundled broker host port and interface |
+| `MQTT_TOPIC` | `#` | Subscription filter; quote it as `'#'` in `.env` |
+| `MAX_PACKET_BYTES` | `65536` | Packet/frame size limit; maximum configurable value 1048576 |
+| `DEVICE_STALE_SECONDS` | `300` | Last-seen freshness window |
+
+Serial mode enables the **WiFi ON / WiFi OFF** command controls automatically.
+These require firmware that implements the requests; selecting serial mode does
+not verify firmware support. A command is **queued** after its database insert
+succeeds, then dispatched by the serial adapter. WiFi mode does not implement an
+MQTT command protocol and hides/rejects those controls.
+The UI confirms queueing only; a serial write does not confirm device receipt or
+a WiFi state change.
+A database failure after serial transmission can cause a repeated command.
+
+## Using the interface
+
+- **Overview:** a snapshot of loaded messages, known topics, Duck freshness, and numeric readings. Refresh explicitly to update it.
+- **Messages** (`/data`): latest 100 raw messages, numeric charts, browser alert results, and a
+  selected device's latest reading. Select a chart topic on the page.
+- **Ducks:** each device's latest packet and last-seen freshness. This is inferred
+  from message timestamps, not a live radio connection indicator.
+- **Settings:** choose chart style/topics, sample limit, monitored device, alert
+  bounds, and detailed message columns. Chart/alert preferences are saved in this
+  browser; there is no background notification service.
+
+The interface uses a dark layout throughout, with no theme selector. Core styles
+are built locally with Tailwind and served by Express. The built-in **Setup guide**
+is available without internet access.
+
+Charts and alerts inspect at most the latest 1000 messages matching a topic.
+Charts and threshold checks accept payload strings containing a single finite
+decimal number, such as `"-2.5"`. Nonnumeric text and structured JSON payloads,
+including health messages, remain visible in the message table but are not parsed
+into numeric series. Alerts use values strictly below the minimum or above the
+maximum. All displayed/API timestamps use UTC. Equal timestamps have no guaranteed
+ordering in the existing schema.
+Charts retain separate samples that share a timestamp; multiple series use gaps
+where a matching timestamp/occurrence has no value.
+
+Writers retry transient failures with bounded delays. They do not provide a
+durable offline spool: messages can be lost during a database outage. Check logs
+for packets that could not be stored.
+
+## Operations
+
+Use the same Compose file pair for status, logs, or shutdown:
+
+```sh
+docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml ps
+docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml logs --tail=100 web wifiwriter
+docker compose -f docker-compose-base.yml -f docker-compose-wifi.yml down
+```
+
+For serial deployments, substitute `docker-compose-serial.yml` and `serialwriter`.
+MariaDB persists under `data-mariadb/`; back it up before any database/image migration.
+The database port is internal to the Compose network. `/health/live` checks the
+web process and `/health/ready` checks its database/table access.
+
+Images are pinned to multi-platform digests: Node 24, Python 3.14, official
+MariaDB 11.4, and Mosquitto 2.1. Application containers run without root.
+For serial access, set `SERIAL_GID` to the numeric group owning your host device;
+the container needs both the device mapping and that supplementary group.
+
+## Development
+
+See [development and testing](docs/development.md) and
+[contributing](CONTRIBUTING.md). This project is licensed under the
+[Apache License 2.0](LICENSE).
