@@ -1,13 +1,30 @@
 name: Test
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+  workflow_dispatch:
+    inputs:
+      full_suite:
+        description: Run browser, device, integration, and migration checks on amd64 and arm64
+        type: boolean
+        default: false
 permissions:
   contents: read
+concurrency:
+  group: test-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        runner: ${{ fromJSON(inputs.full_suite && '["ubuntu-24.04", "ubuntu-24.04-arm"]' || '["ubuntu-24.04"]') }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 35
     steps:
@@ -29,8 +46,10 @@ jobs:
         env:
           TZ: America/Chicago
       - run: npx playwright install --with-deps chromium
+        if: ${{ inputs.full_suite }}
         working-directory: dms-lite
       - run: npx playwright test
+        if: ${{ inputs.full_suite }}
         working-directory: dms-lite
       - run: python -m pip install pyserial==3.5
       - run: python -m unittest discover -s tests -v
@@ -38,8 +57,12 @@ jobs:
       - run: docker build -t dms-lite-smoke-wifiwriter wifi-sql-writer
       - run: docker build -t dms-lite-smoke-serialwriter serial-sql-writer
       - run: python tests/image_smoke.py
+        if: ${{ inputs.full_suite }}
       - run: python -m unittest discover -s tests -p test_container_serial.py -v
+        if: ${{ inputs.full_suite }}
         env:
           DMS_IMAGE_TESTS: '1'
       - run: python tests/smoke.py
+        if: ${{ inputs.full_suite }}
       - run: python tests/migration_smoke.py
+        if: ${{ inputs.full_suite }}

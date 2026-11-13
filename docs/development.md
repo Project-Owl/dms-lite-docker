@@ -109,9 +109,16 @@ temporary tree (`TMPDIR` can place it on disk), verifies byte/ownership preserva
 of the original, restores Unicode, NULLs and duplicate commands, and tests refusal,
 failed export, retained partial import, SIGINT/SIGTERM cleanup and pre-write rollback.
 
-The workflow tests natively on `ubuntu-24.04` (amd64) and `ubuntu-24.04-arm`
-(arm64), using [GitHub's runner labels](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
-Creating the workflow does not establish a successful arm64 run; check its results.
+Normal CI runs the Node/Python unit tests, compiles CSS, and builds all three
+Docker images on `ubuntu-24.04` (amd64). Documentation-only pushes and pull
+requests skip CI. New runs cancel older runs for the same branch.
+
+Browser, container runtime/device, integration, and migration rehearsals are
+optional. In GitHub Actions, select **Test → Run workflow** and enable
+**full_suite** to run those checks on both `ubuntu-24.04` (amd64) and
+`ubuntu-24.04-arm` (arm64). These suites remain available locally with the
+commands above. Browser installation needs access to Ubuntu's package servers;
+DNS/download failures there are runner setup failures.
 No workflow publishes images. Production npm audit covers npm dependencies only;
 there is no equivalent claim about complete OS/Python vulnerability scanning.
 
@@ -141,8 +148,8 @@ Restart the server after rebuilding styles when checking a deployment asset URL.
 
 The web Dockerfile compiles styles in a separate stage with dev dependencies.
 The final non-root image installs production packages only and copies the built
-CSS. There is no Tailwind CDN or runtime compiler. The native architecture CI
-matrix also builds styles before testing. Bootstrap/TableFilter are replaced by
+CSS. There is no Tailwind CDN or runtime compiler. CI also builds styles before
+testing. Bootstrap/TableFilter are replaced by
 local Tailwind styles and a small loaded-message search/topic filter.
 
 The overview combines independent read-only snapshots. Failed counts display an
