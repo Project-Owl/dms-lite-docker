@@ -4,7 +4,7 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/project-owl/dms-lite-docker?logo=github&style=flat-square)
 
 DMS Lite is an open source, local tool for collecting and viewing data from
-[ClusterDuck Protocol](https://github.com/ClusterDuck-Protocol/ClusterDuck-Protocol)
+[ClusterDuck Protocol](https://github.com/Project-Owl/ClusterDuck-Protocol)
 firmware without a cloud subscription. Connect a PapaDuck over MQTT or USB serial,
 then use the browser interface to inspect messages, device activity, charts, and
 browser alert thresholds. Core pages and assets work without internet access;
@@ -25,9 +25,11 @@ numeric readings. Open the interface on the Docker host or another device on its
 local network.
 
 Use PapaDuck firmware that supports your chosen ingestion mode and the packet
-format below. The [USB serial example](https://github.com/ClusterDuck-Protocol/QuackPacks/tree/main/Custom-Papa/PapiDuck-DMS-Lite-Serial-Example)
-and [WiFi example](https://github.com/ClusterDuck-Protocol/QuackPacks/tree/main/Custom-Papa/PapiDuck-DMS-Lite-WiFi-Example)
-are firmware references; check their board settings and CDP version before use.
+format below. Use the CDP 5.5 [USB serial example](https://github.com/Project-Owl/ClusterDuck-Protocol/tree/release-5.5.0/examples/Custom-Papa-Examples/DMS-Lite-Serial-PapaDuck)
+or [WiFi example](https://github.com/Project-Owl/ClusterDuck-Protocol/tree/release-5.5.0/examples/Custom-Papa-Examples/DMS-Lite-WiFi-PapaDuck)
+on the `release-5.5.0` branch. Follow the [firmware setup and compatibility guide](https://github.com/Project-Owl/ClusterDuck-Protocol/blob/release-5.5.0/examples/Custom-Papa-Examples/README-DMS-Lite.md)
+for board settings and configuration. CDP 5.5 does not support the legacy serial
+WiFi commands exposed by DMS Lite's command controls.
 
 The stack contains an Express/EJS web application, MariaDB, and a Python ingestion
 adapter. WiFi mode also starts a Mosquitto broker. Express serves all page and
